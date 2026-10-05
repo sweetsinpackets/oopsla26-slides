@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+  <title>Reachability Types @ iWACO</title>
+
+  <link rel="stylesheet" href="dist/reset.css" />
+  <link rel="stylesheet" href="dist/reveal.css" />
+  <link rel="stylesheet" href="dist/theme/white.css" />
+
+  <!-- Theme used for syntax highlighted code -->
+  <link rel="stylesheet" href="dist/plugin/highlight/stackoverflow-light.css" />
+  <link rel="stylesheet" href="dist/custom/style.css" />
+</head>
+
+<body>
+  <script>
+  // Point these at ./node_modules/... to run fully offline (`npm install` first).
+  const localPaths = {
+    // mathjax: './node_modules/mathjax/tex-chtml.js',
+    // mathjaxFont: './node_modules/@mathjax/mathjax-newcm-font',
+    // mermaid: './node_modules/mermaid/dist/mermaid.esm.min.mjs',
+    // mermaidElk: './node_modules/@mermaid-js/layout-elk/dist/mermaid-layout-elk.esm.min.mjs',
+    // chartjs: './node_modules/chart.js/dist/chart.umd.min.js',
+  }
+  window.charts = {};
+  </script>
+  <div class="reveal">
+    <div class="slides" data-include="slides/main.html"></div>
+  </div>
+
+  <script src="dist/reveal.js"></script>
+  <script src="dist/plugin/markdown.js"></script>
+  <script src="dist/plugin/notes.js"></script>
+  <script src="dist/plugin/math.js"></script>
+  <script src="dist/plugin/zoom.js"></script>
+  <script src="dist/plugin/highlight.js"></script>
+  <script src="dist/custom/reachability.js"></script>
+  <script src="dist/custom/reveal-includes.js"></script>
+  <script src="dist/custom/reveal-toc.js"></script>
+  <script src="dist/custom/reveal-mermaid.js"></script>
+  <script src="dist/custom/reveal-chartjs.js"></script>
+
+  <script>
+  // ===== Math / equations =====
+  // https://docs.mathjax.org/en/v4.0/input/tex/index.html
+
+  const mathjaxOptions = {
+    mathjax: localPaths.mathjax,
+    output: {
+      scale: 0.8,
+      fontPath: localPaths.mathjaxFont
+    },
+    // $tex$ spans captured inside code blocks carry this class; without it,
+    // MathJax's skipHtmlTags (pre, code) silently drops them.
+    options: { processHtmlClass: 'mathjax_process' },
+    startup: { pageReady: typesetCollectedMath },
+    tex:     { macros: {
+      // --- colors ---
+      cao:      "\\color[RGB]{178,52,115}",
+      ceff:     "\\color[RGB]{15,118,110}",
+      cer:      "\\color{red}",
+      cdm:      "\\color{gray}",
+      cst:      "\\color{DarkMagenta}",
+      cls:      "\\color{teal}",
+      rulefmt:  ["\\textsf{(#1)}", 1],
+
+      // --- the calculi, one per paper in the development line ---
+      // bao21  OOPSLA'21  base reachability, STLC
+      baolang:  "\\lambda^*",
+      baoefflang: "\\lambda^*_{\\cao\\varepsilon}",
+      // wei24  POPL'24    freshness + polymorphism
+      weimonolang: "\\lambda^\\qfresh",
+      weilang:  "{\\sf F}_{<:}^{\\qfresh}",
+      // deng25 OOPSLA'25  shallow refs + cyclic (self) references
+      denglang: "{\\sf F}_{<:}^{\\circ}",
+      // he26   OOPSLA'26  arenas + scopes
+      helang:   "{\\sf A}_{<:}^{\\qfresh}",
+      hescopelang: "{\\left\\{\\sf A\\right\\}}_{<:}^{\\qfresh}",
+      // jia26  PLDI'26    declarative spec + bidirectional algorithm
+      declang:  "{\\sf G}_{<:}^{\\qfresh}",
+      algolang: "{\\sf G}_{\\Leftrightarrow}^{\\qfresh}",
+      // deng27 WIP        flow-sensitive use/kill effects
+      efflang:  "{\\sf F}_{{\\cao\\varepsilon}<:}^{\\qfresh}",
+      // other systems in the wider landscape
+      lrlang:   "\\lambda^\\qfresh",
+      lrelang:  "\\lambda^\\qfresh_{\\cao\\varepsilon}",
+      fsproto:  "{\\sf G}_{\\#}^{\\qfresh}",
+
+      // --- core reachability notation ---
+      qfresh:   "{\\scriptsize♦}",
+      qhole:    "\\square",
+      qbot:     "\\varnothing",
+      G:        "\\Gamma",
+      ts:       "\\vdash",
+      flt:      "\\varphi",
+      TUnit:    "\\textsf{Unit}",
+      TInt:     "\\textsf{Int}",
+      TRef:     ["\\textsf{Ref}[#1]", 1],
+      tref:     ["\\textsf{ref}~#1", 1],
+      mts:      "\\models",
+      bbrkt:    ["⟦{#1}⟧", 1],
+      Vint:     ["\\mathbb{V}\\bbrkt{#1}", 1],
+      Lint:     ["\\bbrkt{#1}_{#2}", 2],
+      Lintn:    ["\\Lint{#1{\\cdm\\scriptsize\\setminus\\qfresh}}{#2}", 2],
+      defeq:    "\\overset{\\textsf{def}}{=}",
+      VV:       "\\mathcal{V}",
+      dom:      ["\\textsf{dom} {#1}", 1],
+      Gint:     ["\\mathbb{G}_{#1}\\bbrkt{#2}", 2],
+      ev:       "\\Downarrow",
+
+      // --- algorithmic typing (jia26) ---
+      algout:   ["{\\cao #1}", 1],
+      ots:      "\\dashv",
+      tinfer:   "\\Rightarrow",
+      tcheck:   "\\Leftarrow",
+      exp:      "\\Uparrow",
+
+      // --- effects (bao21, deng27) ---
+      euse:     ["\\textsf{use}~#1", 1],
+      ekill:    ["\\textsf{kill}~#1", 1],
+    }},
+  };
+
+  // ===== Code highlighting =====
+  // https://highlightjs.readthedocs.io/en/latest/api.html
+  //
+  // Source notation cheat sheet for <code> blocks:
+  //   $x^2$        inline TeX, typeset by MathJax
+  //   ~{q}         superscript (qualifier), e.g. Ref[Int]~{x,y}
+  //   ~*  ~0       the freshness marker ♦ and the empty qualifier ∅
+  //   !!red!!      red span (errors)
+  //   ??pink??     #B23473 span (qualifiers / outputs)
+  //   `dimmed`     gray span
+  //   ^^use^^      teal span: effect labels (use, kill), distinct from qualifiers
+  //   |- |-> -> ==> \u \E \A <<   symbol translations
+
+  const highlightOptions = {
+    beforeHighlight(hljs) {
+      hljs.registerLanguage("rt", rtLangDef);
+      hljs.configure({ languages: ["rt"] });
+      hljs.addPlugin(createHighlightAnnotationPlugin([
+        // innermost-first: math escape first
+        { regex: /\$([^$]+)\$/g,   apply: captureMathSpan },         // $tex$ inline math via MathJax
+        // direct symbol translations
+        { translations: {
+          '|->': '↦',
+        }},
+        { translations: {
+            '|-':  '⊢',
+            '==>': '⟹',
+            '->':  '→',
+            '~*':  '♦',
+            '~0':  '∅',
+            '\\u': 'μ',
+            '\\E': '∃',
+            '\\A': '∀',
+            '<<':  '≪',
+        }},
+        // scripting
+        { regex: /~\{([^\}]+)\}/g, apply: makeSup },                 // ~{superscript}
+        // colors
+        { regex: /!!(.+?)!!/g,     apply: makeColorSpan('red') },    // !!Red Error!!
+        { regex: /\?\?(.+?)\?\?/g, apply: makeColorSpan('#B23473') }, // ??Purple Output??
+        { regex: /`([^`]+)`/g,     apply: makeColorSpan('gray') },   // `dimmed`
+        { regex: /\^\^(.+?)\^\^/g, apply: makeColorSpan('#0f766e') }, // ^^effect label^^ (use, kill)
+      ]));
+    }
+  }
+
+  // ===== Reveal options =====
+  // https://revealjs.com/initialization/
+  // https://revealjs.com/config/
+
+  Reveal.initialize({
+    //view: "scroll",
+    hash: true,
+    controls: false,
+    slideNumber: "c/t",
+    navigationMode: "linear",
+    width: 1536,
+    height: 960,
+    showNotes: false,
+    center: false,
+    margin: 0.2,
+    transition: "fade",
+    // invited talk slot; adjust once the program is out
+    totalTime: 1320,
+
+    highlight: highlightOptions,
+    mathjax4:  mathjaxOptions,
+    mermaid: {
+      theme: 'neutral',
+      look: 'handDrawn',
+      themeVariables: {
+        fontSize: '16px',
+      },
+      path: localPaths.mermaid,
+      elkPath: localPaths.mermaidElk,
+    },
+    chartjs: {
+      path: localPaths.chartjs,
+      default: {
+        font: { size: 32 },
+        elements: {
+          point: {
+            borderWidth: 3,
+            radius: 5
+          }
+        }
+      },
+      charts: window.charts
+    },
+
+    plugins: [
+      RevealIncludes,
+      RevealToc,
+      RevealHighlight,
+      RevealNotes,
+      RevealZoom,
+      RevealMath.MathJax4,
+      RevealMermaid,
+      RevealChartjs,
+    ],
+  }).then(() => {
+    highlightExtras('code.hl2');
+
+    // "v" switches between the normal deck (arrow keys, one slide at a time)
+    // and the scroll view (mouse wheel, one long page). Reveal only reads
+    // `view` when it initializes, so flip the query param and reload; with
+    // hash: true we land back on the slide we were looking at.
+    Reveal.addKeyBinding(
+      { keyCode: 86, key: 'V', description: 'Toggle scroll / deck view' },
+      () => {
+        const url = new URL(window.location.href);
+        if (url.searchParams.get('view') === 'scroll') url.searchParams.delete('view');
+        else url.searchParams.set('view', 'scroll');
+        window.location.href = url.toString();
+      }
+    );
+  });
+  </script>
+</body>
+
+</html>

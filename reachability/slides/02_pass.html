@@ -1,0 +1,95 @@
+<section>
+  <div class="toc strip" data-focus="passed"></div>
+  <div class="story-code"><pre><code class="hljs nohighlight" data-noescape><span class="hljs-keyword">def</span> <span class="hljs-title">f</span>(x: <span class="hljs-type">Ref</span>[<span class="hljs-type">Int</span>]<span style="color: #B23473"><sup>?</sup></span>) = !a + !x
+f(<span class="lab"><span class="hljs-keyword">new</span> <span class="hljs-type">Ref</span>(<span class="hljs-number">0</span>)<span class="k">fresh</span></span>);  f(<span class="lab">a<span class="k">shared</span></span>);  f(<span class="lab">b<span class="k">separate</span></span>)</code></pre></div>
+</section>
+
+
+<section>
+  <h2>Functions and Contextual Freshness</h2>
+  <div style="margin-top: 2%;">
+  <b>At function application, reachability types check separation and controlled sharing.</b>
+  </div>
+  <div style="margin-top: 2%;">
+  <b>A function's qualifier is the set of resources it observes.</b>
+  </div>
+  <pre style="margin-top: 3%;"><code data-trim>
+  val a = new Ref(1)
+  val b = new Ref(2)
+  def f(x: Ref[Int]??~{~*}??) = !a + !x
+          //: ((x: Ref[Int]??~{~*}??) -> Int)??~{a}??
+  </code></pre>
+  <div class="fragment" data-fragment-index="1" style="margin-top: 3%;">
+  <b>Contextual freshness: ${\cao\qfresh}$ requires an argument separate from what f observes.</b>
+  </div>
+  <pre class="fragment" data-fragment-index="1" style="margin-top: 2%;"><code data-trim>
+  f(b)   // ok: `f does not observe b`
+  f(!!a!!)   // !!error:!! f already observes a
+  </code></pre>
+</section>
+
+
+<section>
+  <h2>Controlled Sharing</h2>
+  <div style="margin-top: 2%;">
+  <b>The argument qualifier names what may be shared with the function.</b>
+  </div>
+  <div style="display: flex; align-items: center; margin-top: 2%;">
+  <div style="width: 52%;">
+  <pre><code data-trim>
+  val c = new Ref(3)
+  def f(x: Ref[Int]??~{~*a}??) = b := !a + !x
+          //: ((x: Ref[Int]??~{~*a}??) -> Unit)??~{a,b}??
+  </code></pre>
+  <pre class="fragment" data-fragment-index="1"><code data-trim>
+  f(a)   // ok: `sharing a is allowed`
+  f(c)   // ok: `c is separate`
+  f(!!b!!)   // !!error:!! f already observes b
+  </code></pre>
+  </div>
+  <div style="width: 45%; margin-left: 3%;">
+  <table style="width: 100%; color: #1a1a1a; font-size: 92%; font-weight: 600;">
+      <tr>
+        <td style="border: 0; width: 32%; padding: 0.35em 0;">
+        <code class="hl2">(x: T??~{~*}??)</code></td>
+        <td style="border: 0; padding: 0.35em 0;">shares neither a nor b</td>
+      </tr>
+      <tr>
+        <td style="border: 0; padding: 0.35em 0;">
+        <code class="hl2">(x: T??~{~*a}??)</code></td>
+        <td style="border: 0; padding: 0.35em 0;">may share a, nothing else</td>
+      </tr>
+      <tr>
+        <td style="border: 0; padding: 0.35em 0;">
+        <code class="hl2">(x: T??~{a}??)</code></td>
+        <td style="border: 0; padding: 0.35em 0;">within a, nothing fresh</td>
+      </tr>
+    </table>
+  </div>
+  </div>
+  <div class="fragment" data-fragment-index="1" style="margin-top: 3%;">
+  <b>Everything else the argument may reach must stay contextually fresh.</b>
+  </div>
+</section>
+
+
+<section>
+  <h2>Lightweight Reachability Polymorphism</h2>
+  <div style="margin-top: 3%;">
+  <b>A function's result may reach its argument.</b>
+  </div>
+  <pre style="margin-top: 3%;"><code data-trim>
+  def id(x: Ref[Int]??~{~*}??) = x    //: (x: Ref[Int]??~{~*}??) -> Ref[Int]??~{x}??
+  </code></pre>
+  <div class="fragment" data-fragment-index="2" style="margin-top: 3%;">
+  <b>So the result's qualifier is dependent too, naming the parameter.</b>
+  </div>
+  <pre class="fragment" data-fragment-index="2" style="margin-top: 3%;"><code data-trim>
+  val r = new Ref(42)         //: Ref[Int]??~{r}??
+  id(r)                       //: Ref[Int]??~{r}??   `by [x |-> r]`
+  </code></pre>
+  <div class="fragment" data-fragment-index="2" style="margin-top: 3%;">
+  <b>The call substitutes the argument for the parameter.</b>
+  <span class="cite">&rarr; POPL'24</span>
+  </div>
+</section>

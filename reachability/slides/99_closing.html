@@ -1,0 +1,526 @@
+<section>
+  <h2>The Family at a Glance</h2>
+  <p class="delta">core calculi mechanized in Rocq, the algorithmic one in Lean 4</p>
+  <svg viewBox="0 0 1460 610" style="width: 99%; margin-top: 1%;">
+    <defs>
+      <marker id="rmah" viewBox="0 0 10 10" refX="9" refY="5"
+              markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#555"/>
+      </marker>
+    </defs>
+    <rect x="10" y="20" width="430" height="112" rx="10" fill="#f0e2ad" stroke="#8c6d1f" stroke-width="3.5"/>
+    <text x="225" y="68" text-anchor="middle" font-size="30" font-weight="700" fill="#222">reachability qualifiers</text>
+    <text x="225" y="108" text-anchor="middle" font-size="24" fill="#444">typed sharing &amp; separation</text>
+    <text x="225" y="160" text-anchor="middle" font-size="21" font-style="italic" font-weight="600" fill="#8c6d1f">OOPSLA'21</text>
+    <rect x="505" y="20" width="430" height="112" rx="10" fill="#cfe7f2" stroke="#1f6f8c" stroke-width="3.5"/>
+    <text x="720" y="68" text-anchor="middle" font-size="30" font-weight="700" fill="#222">freshness &amp; polymorphism</text>
+    <text x="720" y="108" text-anchor="middle" font-size="24" fill="#444">values not yet named</text>
+    <text x="720" y="160" text-anchor="middle" font-size="21" font-style="italic" font-weight="600" fill="#1f6f8c">POPL'24</text>
+    <rect x="1000" y="20" width="430" height="112" rx="10" fill="#d4ecdd" stroke="#2e7d4f" stroke-width="3.5"/>
+    <text x="1215" y="68" text-anchor="middle" font-size="30" font-weight="700" fill="#222">immediate reachability</text>
+    <text x="1215" y="108" text-anchor="middle" font-size="24" fill="#444">cyclic &amp; escaping references</text>
+    <text x="1215" y="160" text-anchor="middle" font-size="21" font-style="italic" font-weight="600" fill="#2e7d4f">OOPSLA'25</text>
+    <rect x="10" y="250" width="430" height="112" rx="10" fill="#e4d8f4" stroke="#6b3f9e" stroke-width="3.5"/>
+    <text x="225" y="298" text-anchor="middle" font-size="30" font-weight="700" fill="#222">algorithmic typing</text>
+    <text x="225" y="338" text-anchor="middle" font-size="24" fill="#444">avoidance by subtyping</text>
+    <text x="225" y="390" text-anchor="middle" font-size="21" font-style="italic" font-weight="600" fill="#6b3f9e">PLDI'26</text>
+    <rect x="505" y="250" width="430" height="112" rx="10" fill="#f6dccd" stroke="#8c3a1f" stroke-width="3.5"/>
+    <text x="720" y="298" text-anchor="middle" font-size="30" font-weight="700" fill="#222">arenas &amp; scopes</text>
+    <text x="720" y="338" text-anchor="middle" font-size="24" fill="#444">flexible lifetimes, bulk reclaim</text>
+    <text x="720" y="390" text-anchor="middle" font-size="21" font-style="italic" font-weight="600" fill="#8c3a1f">OOPSLA'26</text>
+    <rect x="1000" y="250" width="430" height="112" rx="10" fill="#f3d4e6" stroke="#99306b" stroke-width="3.5"/>
+    <text x="1215" y="298" text-anchor="middle" font-size="30" font-weight="700" fill="#222">flow-sensitive effects</text>
+    <text x="1215" y="338" text-anchor="middle" font-size="24" fill="#444">ownership transfer</text>
+    <text x="1215" y="390" text-anchor="middle" font-size="21" font-style="italic" font-weight="600" fill="#99306b">work in progress</text>
+    <path d="M440,76 L497,76" stroke="#555" stroke-width="3" fill="none" marker-end="url(#rmah)"/>
+    <path d="M935,76 L992,76" stroke="#555" stroke-width="3" fill="none" marker-end="url(#rmah)"/>
+    <path d="M1330,135 L1330,242" stroke="#555" stroke-width="3" fill="none" marker-end="url(#rmah)"/>
+    <path d="M1100,135 C1100,215 720,175 720,242" stroke="#555" stroke-width="3" fill="none" marker-end="url(#rmah)"/>
+    <path d="M1040,135 C1040,225 225,170 225,242" stroke="#555" stroke-width="3" fill="none" marker-end="url(#rmah)"/>
+    <text x="2" y="452" font-size="22" fill="#777" letter-spacing="1">AROUND THE CORE CALCULI</text>
+    <rect x="2" y="470" width="268" height="96" rx="10" fill="#f4f4f2" stroke="#9a9a9a" stroke-width="2.5"/>
+    <text x="136" y="510" text-anchor="middle" font-size="26" font-weight="700" fill="#222">second-class values</text>
+    <text x="136" y="546" text-anchor="middle" font-size="21" fill="#444">the precursor</text>
+    <text x="136" y="596" text-anchor="middle" font-size="19" font-style="italic" font-weight="600" fill="#666">OOPSLA'16 &#183; ECOOP'22</text>
+    <rect x="299" y="470" width="268" height="96" rx="10" fill="#f4f4f2" stroke="#9a9a9a" stroke-width="2.5"/>
+    <text x="433" y="510" text-anchor="middle" font-size="26" font-weight="700" fill="#222">graph IR</text>
+    <text x="433" y="546" text-anchor="middle" font-size="21" fill="#444">compiler optimization</text>
+    <text x="433" y="596" text-anchor="middle" font-size="19" font-style="italic" font-weight="600" fill="#666">OOPSLA'23</text>
+    <rect x="596" y="470" width="268" height="96" rx="10" fill="#f4f4f2" stroke="#9a9a9a" stroke-width="2.5"/>
+    <text x="730" y="510" text-anchor="middle" font-size="26" font-weight="700" fill="#222">logical relations</text>
+    <text x="730" y="546" text-anchor="middle" font-size="21" fill="#444">semantic soundness</text>
+    <text x="730" y="596" text-anchor="middle" font-size="19" font-style="italic" font-weight="600" fill="#666">OOPSLA'25</text>
+    <rect x="893" y="470" width="268" height="96" rx="10" fill="#f4f4f2" stroke="#9a9a9a" stroke-width="2.5"/>
+    <text x="1027" y="510" text-anchor="middle" font-size="26" font-weight="700" fill="#222">typestate</text>
+    <text x="1027" y="546" text-anchor="middle" font-size="21" fill="#444">revocable capabilities</text>
+    <text x="1027" y="596" text-anchor="middle" font-size="19" font-style="italic" font-weight="600" fill="#666">PLDI'26</text>
+    <rect x="1190" y="470" width="268" height="96" rx="10" fill="#f4f4f2" stroke="#9a9a9a" stroke-width="2.5"/>
+    <text x="1324" y="510" text-anchor="middle" font-size="26" font-weight="700" fill="#222">purity</text>
+    <text x="1324" y="546" text-anchor="middle" font-size="21" fill="#444">abilities &amp; effects</text>
+    <text x="1324" y="596" text-anchor="middle" font-size="19" font-style="italic" font-weight="600" fill="#666">OOPSLA'26</text>
+  </svg>
+  <div style="margin-top: 1%;">
+  <b>One invariant throughout: disjoint qualifiers, disconnected object graphs.</b>
+  </div>
+</section>
+
+
+<section>
+  <h2>Conclusion</h2>
+  <div style="margin-top: 1%;">
+  <b>Track what each term may reach, instead of restricting the heap.</b>
+  </div>
+  <table style="width: 100%; margin-top: 2%;">
+    <tr>
+      <td style="border: 0; width: 19%;"><b class="kw">allocated</b></td>
+      <td style="border: 0;">${\cao\qfresh}$ represents freshness, separate from every existing resource.</td>
+    </tr>
+    <tr>
+      <td style="border: 0; width: 19%;"><b class="kw">named</b></td>
+      <td style="border: 0;">Separation is checked on transitive closures of qualifiers.</td>
+    </tr>
+    <tr>
+      <td style="border: 0; width: 19%;"><b class="kw">passed</b></td>
+      <td style="border: 0;">The argument qualifier controls what may be shared.</td>
+    </tr>
+    <tr>
+      <td style="border: 0; width: 19%;"><b class="kw">returned</b></td>
+      <td style="border: 0;">A self-reference keeps escaping tracked; avoidance is subtyping.</td>
+    </tr>
+    <tr>
+      <td style="border: 0; width: 19%;"><b class="kw">consumed</b></td>
+      <td style="border: 0;">Ownership transfer is an effect at the call, not at the capture.
+      <span class="paper p-deng27">WIP</span></td>
+    </tr>
+  </table>
+  <div class="centering" style="margin-top: 4%;">
+    Mechanizations, prototypes and papers: <code>github.com/tiarkrompf/reachability</code>
+  </div>
+  <div class="centering" style="margin-top: 2%;">
+    <span class="newtag" style="font-size: 100%;">I am seeking academic and industry positions.</span>
+  </div>
+  <div class="refs centering" style="width: 100%;">
+    Thank you. Questions?
+  </div>
+</section>
+
+
+<section data-visibility="uncounted">
+  <h2>Backup: Related Approaches</h2>
+  <p class="delta">neighbors, by what each one takes as primitive</p>
+  <table class="smaller related" style="width: 100%; margin-top: 1%; line-height: 1.2;">
+    <tr>
+      <td style="border: 0; width: 27%;"><b>Ownership, uniqueness</b></td>
+      <td style="border: 0; width: 41%;">access is primitive; sharing is re&#8209;admitted by borrowing</td>
+      <td style="border: 0; color: #555; font-size: 85%;">Clarke, Potter &amp; Noble&nbsp;'98; Clarke &amp; Wrigstad&nbsp;'03; Rust</td>
+    </tr>
+    <tr>
+      <td style="border: 0; width: 27%;"><b>Reference capabilities, isolation</b></td>
+      <td style="border: 0; width: 41%;">isolation is primitive; mutable sharing stays inside a region</td>
+      <td style="border: 0; color: #555; font-size: 85%;">Pony&nbsp;'15; Milano, Turcotti &amp; Myers&nbsp;'22; Reggio: Arvidsson, &#8230;, Wrigstad&nbsp;'23</td>
+    </tr>
+    <tr>
+      <td style="border: 0; width: 27%;"><b>Linear, affine types</b></td>
+      <td style="border: 0; width: 41%;">multiplicity is primitive; aliasing is what they avoid</td>
+      <td style="border: 0; color: #555; font-size: 85%;">Wadler&nbsp;'90; Alms&nbsp;'11; Linear&nbsp;Haskell&nbsp;'18</td>
+    </tr>
+    <tr>
+      <td style="border: 0; width: 27%;"><b>Regions</b></td>
+      <td style="border: 0; width: 41%;">lifetime is primitive; membership is a static region name</td>
+      <td style="border: 0; color: #555; font-size: 85%;">Tofte &amp; Talpin&nbsp;'94; Cyclone&nbsp;'02</td>
+    </tr>
+    <tr>
+      <td style="border: 0; width: 27%;"><b>Capture types, second&#8209;class</b></td>
+      <td style="border: 0; width: 41%;">capability capture is primitive, tracked lexically</td>
+      <td style="border: 0; color: #555; font-size: 85%;">Osvald et&nbsp;al.&nbsp;'16; Boruch&#8209;Gruszecki et&nbsp;al.&nbsp;'23</td>
+    </tr>
+    <tr>
+      <td style="border: 0; width: 27%;"><b>Separation logic</b></td>
+      <td style="border: 0; width: 41%;">disjointness is primitive, in the assertion language</td>
+      <td style="border: 0; color: #555; font-size: 85%;">O'Hearn, Reynolds &amp; Yang&nbsp;'01; Iris</td>
+    </tr>
+    <tr>
+      <td style="border: 0;"><b class="p-bao21">Reachability types</b></td>
+      <td style="border: 0;" colspan="2"><b>reachability is primitive;</b> separation, lifetime
+      and consumption are all derived from it</td>
+    </tr>
+  </table>
+</section>
+
+
+<section data-visibility="uncounted">
+  <h2>Backup: the Systems Side by Side</h2>
+  <table class="smaller" style="font-size: 20pt; width: 100%;">
+    <thead>
+      <tr>
+        <th style="width: 17%;">System</th>
+        <th>Qualifier says</th>
+        <th>Depth</th>
+        <th>Store shape</th>
+        <th>Discipline</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><b class="p-bao21">$\baolang$</b> <span class="cite">OOPSLA'21</span></td>
+        <td>sets, plus an untracked marker $\qbot$</td>
+        <td>eagerly saturated</td>
+        <td>flat; cells hold untracked data</td>
+        <td>STLC, declarative; $\baoefflang$ sketches use/kill</td>
+      </tr>
+      <tr>
+        <td><b class="p-wei24">$\weilang$</b> <span class="cite">POPL'24</span></td>
+        <td>sets, plus freshness ${\cao\qfresh}$</td>
+        <td>one step for variables, still deep for cells</td>
+        <td>nested cells; telescoping, so a DAG</td>
+        <td>$\mathsf{F}_{&lt;:}$ and lightweight qualifier polymorphism</td>
+      </tr>
+      <tr>
+        <td><b class="p-deng25">$\denglang$</b> <span class="cite">OOPSLA'25</span></td>
+        <td>adds $\mu$-references and a read/write split</td>
+        <td>shallow everywhere</td>
+        <td>cycles through a single cell</td>
+        <td>declarative</td>
+      </tr>
+      <tr>
+        <td><b class="p-he26">$\helang$</b> <span class="cite">OOPSLA'26</span></td>
+        <td>arena-granular; one identity per group</td>
+        <td>shallow</td>
+        <td>two-dimensional; cycles within and across arenas</td>
+        <td>adds scoped, flow-insensitive deallocation</td>
+      </tr>
+      <tr>
+        <td><b class="p-jia26">$\algolang$</b> <span class="cite">PLDI'26</span></td>
+        <td>self-references, now also in subtyping</td>
+        <td>shallow</td>
+        <td>escaping data structures</td>
+        <td>bidirectional, decidable, mechanized in Lean 4</td>
+      </tr>
+      <tr>
+        <td><b class="p-deng27">$\efflang$</b> <span class="cite">WIP</span></td>
+        <td>adds latent use/kill effects</td>
+        <td>shallow</td>
+        <td>unchanged</td>
+        <td>flow-sensitive</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+
+<section data-visibility="uncounted">
+  <h2>Backup: What Is Still Open</h2>
+  <div>
+    <ul>
+      <li><b>Composition with language features:</b> exceptions,
+        type operators ($\mathsf{F}_\omega$).</li>
+      <li class="fragment"><b>From calculus to language:</b> syntax, errors, modules;
+        how much qualifier should anyone write?</li>
+      <li class="fragment"><b>Reachability as analysis:</b> infer qualifiers for
+        existing code; optimize rather than reject.</li>
+      <li class="fragment"><b>The neighbors:</b> real translations, in both
+        directions.</li>
+    </ul>
+  </div>
+</section>
+
+
+<section data-visibility="uncounted">
+  <h2>Backup: From Ownership to Reachability</h2>
+  <p class="delta">two ways to make resource reasoning static</p>
+  <div style="margin-top: 2%;">
+  <b>Both want memory safety, no data races, and timely reclamation.</b>
+  </div>
+  <div style="margin-top: 5%;">
+    <div class="half fragment semi-fade-out" data-fragment-index="1" style="width: 46%;">
+      <h3 style="color: #555;">Restrict</h3>
+      <div>
+      enforce an invariant on the heap
+      </div>
+      <div style="margin-top: 4%;">
+      re-admit sharing by borrowing
+      </div>
+    </div>
+    <div class="half fragment" data-fragment-index="1" style="width: 46%;">
+      <h3 style="color: var(--c-bao21, #8c6d1f);">Track</h3>
+      <div>
+      record what each term may reach
+      </div>
+      <div style="margin-top: 4%;">
+      derive separation from disjointness
+      </div>
+    </div>
+  </div>
+  <div class="fragment" data-fragment-index="1" style="margin-top: 5%;">
+  <b>The difference shows up in higher-order code.</b>
+  </div>
+</section>
+
+
+<section data-visibility="uncounted">
+  <h2>Backup: Objects Are Higher-Order</h2>
+  <p class="delta">an object is a record of closures over encapsulated state</p>
+  <div style="margin-top: 2%;">
+  <b>In Rust, an object owns its fields, and its methods borrow them through <code>self</code>.</b>
+  </div>
+  <div style="margin-top: 3%;">
+    <div class="half" style="width: 48%;">
+      <p class="kw-group">an object</p>
+      <pre><code class="language-rust" data-trim>
+  struct Counter { c: i32 }
+  impl Counter {
+    fn incr(&mut self) { self.c += 1 }
+    fn get(&self) -> i32 { self.c }
+  }
+      </code></pre>
+    </div>
+    <div class="half fragment" data-fragment-index="1" style="width: 48%; margin-left: 2.5%;">
+      <p class="kw-group">its functional encoding</p>
+      <pre><code data-trim>
+  def counter() = {
+    val c = new Ref(0)
+    (() => c := !c + 1, () => !c)
+  }
+  val (incr, get) = counter()
+      </code></pre>
+    </div>
+  </div>
+  <div class="fragment" data-fragment-index="1" style="margin-top: 4%;">
+  <b>No object owns <code>c</code>: only the two closures reach it.</b>
+  </div>
+  <div class="fragment" data-fragment-index="2" style="margin-top: 2%;">
+  <b>The cell outlives the lexical scope of <code>c</code>, since <code>counter</code> returns both closures.</b>
+  </div>
+</section>
+<section data-visibility="uncounted">
+  <h2>Backup: Reachability Qualifiers</h2>
+  <p class="delta">a type qualified by the set of resources the value may reach</p>
+  <div style="margin-top: 1%;">
+  <b><code class="hl2">Ref[Int]??~{rx,ry}??</code></b>
+  <span>: a reference that may reach <code>rx</code> or <code>ry</code></span>
+  </div>
+  <div style="width: 58%; display: inline-block; vertical-align: top; margin-top: 2%;">
+  <pre><code data-trim>
+  val rx = new Ref(42)   //: Ref[Int]??~{rx}??
+         ==> &#8467;&#8321;
+  val ry = new Ref(7)    //: Ref[Int]??~{ry}??
+         ==> &#8467;&#8322;
+  if (cond) rx else ry   //: Ref[Int]??~{rx,ry}??
+  </code></pre>
+  </div>
+  <div style="width: 40%; display: inline-block; vertical-align: top;">
+    <svg class="store-fig" viewBox="0 0 400 300" style="--k: .95;">
+      <defs>
+        <marker id="ah0" viewBox="0 0 10 10" refX="9" refY="5"
+                markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/>
+        </marker>
+      </defs>
+      <text class="pink" x="94"  y="46" font-size="30">{rx}</text>
+      <text class="pink" x="300" y="46" font-size="30">{rx, ry}</text>
+      <path d="M8,116 L392,116" stroke="#999" stroke-width="2" stroke-dasharray="9 7"/>
+      <path class="arr" d="M94,64 L94,164"    marker-end="url(#ah0)"/>
+      <path class="arrnew" d="M276,64 L136,164" marker-end="url(#ah0)"/>
+      <path class="arrnew" d="M310,64 L310,164" marker-end="url(#ah0)"/>
+      <rect class="ca" x="34"  y="170" width="120" height="58"/>
+      <rect class="cb" x="250" y="170" width="120" height="58"/>
+      <text x="94"  y="208">42</text>
+      <text x="310" y="208">7</text>
+      <text x="94"  y="258">&#8467;&#8321;</text>
+      <text x="310" y="258">&#8467;&#8322;</text>
+      <text class="note" x="200" y="294">one of them, never both</text>
+    </svg>
+  </div>
+  <div style="margin-top: 1%;">
+  <b>The static set over-approximates the locations reached at run time.</b>
+  </div>
+</section>
+
+
+<section data-visibility="uncounted">
+  <h2>Backup: From Deep to Shallow References</h2>
+  <p class="delta">how a reference accounts for what its content reaches</p>
+  <pre><code data-trim>
+  val inner = new Ref(0)       //: Ref[Int]??~{inner}??
+  val outer = new Ref(inner)   //: Ref[Ref[Int]??~{inner}??]??~{?}??
+  </code></pre>
+  <div style="display: flex; justify-content: space-between; margin-top: 2%;">
+    <div class="fragment semi-fade-out" data-fragment-index="1" style="width: 49%;">
+      <h4>Deep <span class="cite">POPL'24</span></h4>
+      <svg class="store-fig" viewBox="0 0 420 175" style="width: 90%; margin-top: 2%; --k: .91;">
+        <defs>
+          <marker id="ahd1" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/>
+          </marker>
+        </defs>
+        <text class="pink" x="150" y="30" style="text-anchor: end;">{outer, inner}</text>
+        <text class="pink" x="370" y="30" style="text-anchor: end;">{inner}</text>
+        <rect class="cb" x="25"  y="44" width="125" height="56"/>
+        <rect class="ca" x="245" y="44" width="125" height="56"/>
+        <circle cx="58" cy="72" r="6.5" fill="#333"/>
+        <text x="307" y="81">0</text>
+        <path class="arr" d="M58,72 L237,72" marker-end="url(#ahd1)"/>
+        <text class="pink" x="197" y="62">inner</text>
+        <text class="nm" x="87"  y="158">outer</text>
+        <text class="nm" x="307" y="158">inner</text>
+        <path class="arr" d="M87,136 L87,106"   marker-end="url(#ahd1)"/>
+        <path class="arr" d="M307,136 L307,106" marker-end="url(#ahd1)"/>
+        <path class="arrnew" d="M128,150 C200,150 240,134 250,108" marker-end="url(#ahd1)"/>
+      </svg>
+      <div style="margin-top: 1%;"><b>The qualifier grows with the content,
+      so a cell reaches only older cells.</b></div>
+    </div>
+    <div class="fragment" data-fragment-index="1" style="width: 49%;">
+      <h4>Shallow <span class="cite">OOPSLA'25</span></h4>
+      <svg class="store-fig" viewBox="0 0 420 175" style="width: 90%; margin-top: 2%; --k: .91;">
+        <defs>
+          <marker id="ahd2" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/>
+          </marker>
+        </defs>
+        <text class="pink" x="150" y="30" style="text-anchor: end;">{outer}</text>
+        <text class="pink" x="370" y="30" style="text-anchor: end;">{inner}</text>
+        <rect class="cb" x="25"  y="44" width="125" height="56"/>
+        <rect class="ca" x="245" y="44" width="125" height="56"/>
+        <circle cx="58" cy="72" r="6.5" fill="#333"/>
+        <text x="307" y="81">0</text>
+        <path class="arr" d="M58,72 L237,72" marker-end="url(#ahd2)"/>
+        <text class="pink" x="197" y="62">inner</text>
+        <text class="nm" x="87"  y="158">outer</text>
+        <text class="nm" x="307" y="158">inner</text>
+        <path class="arr" d="M87,136 L87,106"   marker-end="url(#ahd2)"/>
+        <path class="arr" d="M307,136 L307,106" marker-end="url(#ahd2)"/>
+      </svg>
+      <div style="margin-top: 1%;"><b>The nested qualifier records reachability
+      via store lookup.</b></div>
+    </div>
+  </div>
+  <div class="fragment" data-fragment-index="1" style="margin-top: 2%;">
+  <b>The qualifier no longer grows with the content, so a cell may reach itself.</b>
+  </div>
+</section>
+
+
+<section data-visibility="uncounted">
+  <h2>Backup: Cyclic References</h2>
+  <div style="margin-top: 4%; font-size: 120%; text-align: center;">
+  <b><code class="hl2">\uz.Ref[T??~{z}??]</code></b>
+  </div>
+  <div style="margin-top: 2%;">
+  A reference names itself in its own type.
+  </div>
+  <pre class="fragment" data-fragment-index="1" style="margin-top: 4%;"><code data-trim>
+  val c = new Ref((x: Int) => x)   //: \u!!z!!.Ref[(Int -> Int)!!~{z}!!]??~{c}??
+  def f(x: Int) = (!c)(x)          //: (Int -> Int)??~{c}??
+  c := f                           // ok: `f reaches c, which is the \u-bound` !!z!!
+  </code></pre>
+  <div class="fragment" data-fragment-index="1" style="margin-top: 3%;">
+  <b>Recursion through the store, with no built-in fixed point.</b>
+  <span class="cite">&rarr; OOPSLA'25</span>
+  </div>
+  <div class="fragment" data-fragment-index="1" style="margin-top: 2%; color: gray;">
+  <b>Limitation:</b> self-cycles only; multi-hop cycles need arenas
+  <span class="cite">&rarr; OOPSLA'26</span>
+  </div>
+</section>
+
+
+<section data-visibility="uncounted">
+  <h2>Backup: Escaping Closures</h2>
+  <div style="display: flex; align-items: flex-start; margin-top: 2%;">
+  <div style="width: 58%;">
+  <pre><code data-trim>
+  def counter(n: Int) = {
+      val c = new Ref(n)
+      (() => c := !c + 1, () => c := !c - 1)
+  }
+  </code></pre>
+  <div style="margin-top: 1%;">
+  <b>Inside <code>counter</code>, the cell is named <code>c</code>.</b>
+  </div>
+  <pre class="fragment" data-fragment-index="1" style="margin-top: 3%;"><code data-trim>
+  val (incr, decr) = counter(0)
+  val (up, down)   = counter(1)
+  </code></pre>
+  <div class="fragment" data-fragment-index="1" style="margin-top: 1%;">
+  <b>The cells escape; the name <code>c</code> does not.</b>
+  </div>
+  <pre class="fragment" data-fragment-index="2" style="margin-top: 3%;"><code data-trim>
+  par { incr() } { up() }    // ok
+  par { incr() } { !!decr()!! }  // !!error!!
+  </code></pre>
+  </div>
+  <div style="width: 40%; margin-left: 2%;">
+    <svg class="store-fig" viewBox="0 0 440 400" style="--k: 1.05;">
+      <defs>
+        <marker id="aho1" viewBox="0 0 10 10" refX="9" refY="5"
+                markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/>
+        </marker>
+      </defs>
+      <g class="fragment fade-out" data-fragment-index="1">
+        <rect class="envbox" x="10" y="16" width="195" height="162" rx="12"/>
+        <rect class="ca" x="52" y="40" width="110" height="58"/>
+        <text x="107" y="78">n</text>
+        <path class="arr" d="M107,140 L107,106" marker-end="url(#aho1)"/>
+        <text class="nm inner" x="107" y="164">c</text>
+      </g>
+      <g class="fragment" data-fragment-index="1">
+        <rect class="envbox" x="10"  y="16" width="195" height="162" rx="12"/>
+        <rect class="envbox" x="235" y="16" width="195" height="162" rx="12"/>
+        <rect class="ca" x="52"  y="40" width="110" height="58"/>
+        <rect class="cb" x="277" y="40" width="110" height="58"/>
+        <text x="107" y="78">0</text>
+        <text x="332" y="78">1</text>
+        <path class="arr dead" d="M107,140 L107,106" marker-end="url(#aho1)"/>
+        <path class="arr dead" d="M332,140 L332,106" marker-end="url(#aho1)"/>
+        <text class="nm inner dead" x="107" y="164">c</text>
+        <text class="nm inner dead" x="332" y="164">c</text>
+        <path class="arr" d="M50,262 L88,192"   marker-end="url(#aho1)"/>
+        <path class="arr" d="M162,262 L126,192" marker-end="url(#aho1)"/>
+        <path class="arr" d="M277,262 L313,192" marker-end="url(#aho1)"/>
+        <path class="arr" d="M389,262 L351,192" marker-end="url(#aho1)"/>
+        <text x="50"  y="292" font-weight="700">incr</text>
+        <text x="162" y="292" font-weight="700">decr</text>
+        <text x="277" y="292" font-weight="700">up</text>
+        <text x="389" y="292" font-weight="700">down</text>
+      </g>
+      <g class="fragment" data-fragment-index="2">
+        <path class="arrnew" d="M50,310 C72,356 140,356 162,310"
+              marker-start="url(#aho1)" marker-end="url(#aho1)"/>
+        <text class="rednote" x="106" y="386">one cell</text>
+      </g>
+    </svg>
+  </div>
+  </div>
+</section>
+
+
+<section data-visibility="uncounted">
+  <h2>Backup: Avoidance: Removing a Name That Leaves Scope</h2>
+  <p class="delta">the same escape, cut down to one closure over one cell</p>
+  <pre><code data-trim>
+  def mkRef() = {
+      val b = new Ref(42)
+      () => b            //: (Unit -> Ref[Int]??~{b}??)??~{b}??
+  }
+  val fn = mkRef()       // `b is not visible here`
+  </code></pre>
+  <div class="fragment" data-fragment-index="1" style="margin-top: 2%;">
+  <b><code>mkRef()</code> must be typed without mentioning <code>b</code>.</b>
+  </div>
+  <div class="fragment smaller" data-fragment-index="1" style="margin-top: 1%; color: gray;">
+  the <em>avoidance problem</em>, known in bounded existential types, DOT,
+  and module systems
+  </div>
+  <div class="fragment" data-fragment-index="2" style="margin-top: 3%;">
+  <b>Not just dropping it: replacing the name with ${\cao\qfresh}$ changes what the
+  type says.</b>
+  </div>
+  <pre class="fragment" data-fragment-index="2"><code data-trim>
+  //: (Unit -> Ref[Int]!!~{~*}!!)!!~{~*}!!      `a new reference on every call?`
+  par { fn() := 1 } { fn() := 2 }    // !!unsound!!: the same cell twice
+  </code></pre>
+</section>

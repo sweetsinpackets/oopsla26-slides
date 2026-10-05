@@ -1,0 +1,282 @@
+<section>
+  <h1 style="margin-top: 11%;">Reachability Types</h1>
+  <h3 style="color: gray; margin-top: -1%; margin-bottom: 0;">Tracking Resources in Higher-Order Programs</h3>
+  <div style="width: 100%; border-top: 2px solid #d0d0d0; margin-top: 3%;"></div>
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4%;">
+    <div>
+      <div style="font-size: 130%; font-weight: 600;">Siyuan He</div>
+      <div style="color: #555; margin-top: .2em;">Purdue University</div>
+      <div style="color: #555; font-style: italic; margin-top: .2em;">iWACO 2026</div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 1.2em;">
+      <img src="assets/PU-V-Full-RGB.svg" height="130em" style="margin: 0;">
+      <img src="assets/purpl-banner.jpg" height="130em" style="margin: 0;">
+    </div>
+  </div>
+</section>
+
+
+<section>
+  <h2>Collaborators</h2>
+  <div class="people">
+    <figure>
+      <img src="assets/people/bao.jpg" alt="Yuyan Bao">
+      <b>Yuyan Bao</b><span>Augusta University</span>
+    </figure>
+    <figure>
+      <img src="assets/people/bracevac.jpg" alt="Oliver Bra&#269;evac">
+      <b>Oliver Bra&#269;evac</b><span>EPFL</span>
+    </figure>
+    <figure>
+      <img src="assets/people/deng.jpg" alt="Haotian Deng">
+      <b>Haotian Deng</b><span>Purdue University</span>
+    </figure>
+    <figure>
+      <img src="assets/people/jia.jpg" alt="Songlin Jia">
+      <b>Songlin Jia</b><span>Purdue University</span>
+    </figure>
+    <figure>
+      <div class="blank" role="img" aria-label="Craig Liu"></div>
+      <b>Craig Liu</b><span>UC Berkeley</span>
+    </figure>
+    <figure>
+      <img src="assets/people/wei.jpg" alt="Guannan Wei">
+      <b>Guannan Wei</b><span>Tufts University</span>
+    </figure>
+    <figure>
+      <img src="assets/people/rompf.jpg" alt="Tiark Rompf">
+      <b>Tiark Rompf</b><span>Purdue University</span>
+    </figure>
+  </div>
+  <div class="centering" style="margin-top: 2%; color: gray; font-size: smaller;">
+    and others
+  </div>
+</section>
+
+
+<section data-visibility="hidden">
+  <ul id="toc">
+    <li data-id="allocated">allocated</li>
+    <li data-id="named">named</li>
+    <li data-id="passed">passed</li>
+    <li data-id="returned">returned</li>
+  </ul>
+</section>
+
+
+<section>
+  <h2>Objects and Ownership</h2>
+  <div style="margin-top: 2%;">
+  <b>Goal: memory safety, no data races, and timely reclamation, guaranteed statically.</b>
+  </div>
+  <div style="margin-top: .8%;">
+  <b>Rust achieves this with ownership: methods borrow or consume the object.</b>
+  </div>
+  <div style="display: flex; align-items: flex-start; margin-top: 3%;">
+    <div style="width: 60%;">
+      <pre class="grow" style="margin: 0;"><code class="language-rust" data-trim data-line-numbers="1-8|1-10" data-fragment-index="1">
+  struct Counter { c: i32 }
+  impl Counter {
+      fn incr(&mut self) { self.c += 1 }
+      fn decr(&mut self) { self.c -= 1 }
+      fn kill(self) {}
+  }
+  let mut ctr = Counter { c: 0 };
+  ctr.incr(); ctr.decr();
+  ctr.kill();
+  !!ctr.incr()!!;   // !!error:!! ctr was moved
+      </code></pre>
+    </div>
+    <div style="width: 38%; margin-left: 2%;">
+      <svg class="store-fig" viewBox="0 64 440 226" style="--k: 1.1;">
+        <defs>
+          <marker id="ahob" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/>
+          </marker>
+        </defs>
+        <g class="fragment fade-out" data-fragment-index="1">
+          <rect class="box" x="140" y="92" width="160" height="122" rx="12"/>
+          <rect class="ca" x="165" y="108" width="110" height="60"/>
+          <text x="220" y="148">0</text>
+          <text class="nm inner" x="220" y="200">c</text>
+          <text class="nm" x="220" y="280">ctr</text>
+          <path class="arr" d="M220,252 L220,221" marker-end="url(#ahob)"/>
+        </g>
+        <g class="fragment" data-fragment-index="1">
+          <rect class="deadbox" x="140" y="92" width="160" height="122" rx="12"/>
+          <rect class="ca dead" x="165" y="108" width="110" height="60"/>
+          <text class="dead" x="220" y="148">0</text>
+          <text class="nm inner dead" x="220" y="200">c</text>
+          <text class="nm dead" x="220" y="280">ctr</text>
+          <path class="arr dead" d="M220,252 L220,221" marker-end="url(#ahob)"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+  <div class="fragment" data-fragment-index="1" style="margin-top: 3%;">
+  <b><code>kill</code> consumes <code>ctr</code>, so using it afterwards is rejected statically.</b>
+  </div>
+</section>
+
+
+<section>
+  <h2>Objects Are Higher-Order</h2>
+  <div style="margin-top: 2%;">
+  <b>Functional encoding: the methods become closures over the object's state.</b>
+  </div>
+  <div style="display: flex; align-items: flex-start; margin-top: 3%;">
+    <div style="width: 60%;" class="r-stack">
+      <pre class="fragment fade-out" data-fragment-index="1" style="margin: 0;"><code class="language-rust" data-trim>
+  let mut c = 0;
+  let mut incr = || c += 1;
+  let mut decr = || c -= 1;
+  incr(); decr();
+      </code></pre>
+      <pre class="fragment" data-fragment-index="1" style="margin: 0;"><code class="language-rust" data-trim>
+  let mut c = 0;
+  let mut incr = || c += 1;
+  let mut decr = !!|| c -= 1!!;   // !!error:!! incr borrows c
+  incr(); decr();
+      </code></pre>
+    </div>
+    <div style="width: 38%; margin-left: 2%;">
+      <svg class="store-fig" viewBox="0 64 440 226" style="--k: 1.1;">
+        <defs>
+          <marker id="ahcl" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/>
+          </marker>
+        </defs>
+        <circle class="lam" cx="70"  cy="138" r="32"/>
+        <circle class="lam" cx="370" cy="138" r="32"/>
+        <text x="70"  y="148">&#955;</text>
+        <text x="370" y="148">&#955;</text>
+        <rect class="ca" x="165" y="108" width="110" height="60"/>
+        <text x="220" y="148">0</text>
+        <path class="arr" d="M104,138 L162,138" marker-end="url(#ahcl)"/>
+        <path class="arr" d="M336,138 L278,138" marker-end="url(#ahcl)"/>
+        <path class="arrnew fragment" data-fragment-index="1" d="M336,138 L278,138" marker-end="url(#ahcl)"/>
+        <text class="nm" x="70"  y="236">incr</text>
+        <text class="nm" x="220" y="236">c</text>
+        <text class="nm" x="370" y="236">decr</text>
+        <path class="arr" d="M70,208 L70,174"   marker-end="url(#ahcl)"/>
+        <path class="arr" d="M220,208 L220,171" marker-end="url(#ahcl)"/>
+        <path class="arr" d="M370,208 L370,174" marker-end="url(#ahcl)"/>
+      </svg>
+    </div>
+  </div>
+  <div style="margin-top: 3%;">
+  <b>No object owns <code>c</code>: only the two closures reach it.</b>
+  </div>
+  <div class="fragment" data-fragment-index="1" style="margin-top: 2%;">
+  <b>Shared XOR mutable rejects <code>decr</code>: a closure borrows <code>c</code> from its creation to its last call.</b>
+  <span class="gloss">Rust's workaround, <code style="font-variant-ligatures: none;">Rc&lt;Cell&lt;i32&gt;&gt;</code>, replaces static lifetime tracking by reference counting.</span>
+  </div>
+</section>
+
+
+<section>
+  <h2>From Ownership to Reachability</h2>
+  <div style="margin-top: 2%;">
+  <b class="goal">Our goal: the same guarantees in higher-order code, with mutable sharing allowed.</b>
+  </div>
+  <div style="display: flex; align-items: flex-start; margin-top: 3%;">
+    <div style="width: 60%;">
+      <pre style="margin: 0;"><code data-trim>
+  val c    = new Ref(0)         //: Ref[Int]??~{c}??
+  val incr = () => c := !c + 1  //: (Unit -> Unit)??~{c}??
+  val decr = () => c := !c - 1  //: (Unit -> Unit)??~{c}??
+  incr(); decr()                // ok
+  par { incr() } { decr() }     // !!error:!! race on ??c??
+      </code></pre>
+    </div>
+    <div style="width: 38%; margin-left: 2%;">
+      <svg class="store-fig" viewBox="0 64 440 226" style="--k: 1.1;">
+        <defs>
+          <marker id="ahrt" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/>
+          </marker>
+        </defs>
+        <text class="pink" x="70"  y="94">{c}</text>
+        <text class="pink" x="370" y="94">{c}</text>
+        <circle class="lam" cx="70"  cy="138" r="32"/>
+        <circle class="lam" cx="370" cy="138" r="32"/>
+        <text x="70"  y="148">&#955;</text>
+        <text x="370" y="148">&#955;</text>
+        <rect class="ca" x="165" y="108" width="110" height="60"/>
+        <text x="220" y="148">0</text>
+        <path class="arr" d="M104,138 L162,138" marker-end="url(#ahrt)"/>
+        <path class="arr" d="M336,138 L278,138" marker-end="url(#ahrt)"/>
+        <text class="nm" x="70"  y="236">incr</text>
+        <text class="nm" x="220" y="236">c</text>
+        <text class="nm" x="370" y="236">decr</text>
+        <path class="arr" d="M70,208 L70,174"   marker-end="url(#ahrt)"/>
+        <path class="arr" d="M220,208 L220,171" marker-end="url(#ahrt)"/>
+        <path class="arr" d="M370,208 L370,174" marker-end="url(#ahrt)"/>
+      </svg>
+    </div>
+  </div>
+  <div style="margin-top: 3%;">
+  <b>Reachability types track what each term may reach, instead of restricting the heap.</b>
+  <span class="gloss">separation is checked only where a program needs it</span>
+  </div>
+  <div style="margin-top: 2%;">
+  <b>A type's qualifier is that set: both closures carry <code class="hl2">??{c}??</code>.</b>
+  </div>
+</section>
+
+
+<section>
+  <h2>The Life of a Resource</h2>
+  <table style="width: 98%; margin-top: 3%;">
+    <tr class="fragment">
+      <td style="border: 0; width: 7%; font-size: 170%; color: #999;">1</td>
+      <td style="border: 0;">
+        <div>A resource is <b class="kw">allocated</b>, with no name yet.</div>
+        <div class="smaller" style="color: #555;">How is a new, unnamed resource represented?</div>
+      </td>
+      <td style="border: 0; width: 20%; text-align: right;">
+        <span class="paper p-wei24">POPL'24</span>
+      </td>
+    </tr>
+    <tr class="fragment">
+      <td style="border: 0; font-size: 170%; color: #999;">2</td>
+      <td style="border: 0;">
+        <div>It is <b class="kw">named</b>, and no longer fresh.</div>
+        <div class="smaller" style="color: #555;">What changes once it is bound to names?</div>
+      </td>
+      <td style="border: 0; text-align: right;">
+        <span class="paper p-bao21">OOPSLA'21</span>
+        <span class="paper p-wei24">POPL'24</span>
+        <span class="paper p-deng25">OOPSLA'25</span>
+      </td>
+    </tr>
+    <tr class="fragment">
+      <td style="border: 0; font-size: 170%; color: #999;">3</td>
+      <td style="border: 0;">
+        <div>It is <b class="kw">passed</b> to a function, as fresh or shared.</div>
+        <div class="smaller" style="color: #555;">May it share resources the function already observes?</div>
+      </td>
+      <td style="border: 0; text-align: right;">
+        <span class="paper p-wei24">POPL'24</span>
+      </td>
+    </tr>
+    <tr class="fragment">
+      <td style="border: 0; font-size: 170%; color: #999;">4</td>
+      <td style="border: 0;">
+        <div>It is <b class="kw">returned</b> out of its lexical scope.</div>
+        <div class="smaller" style="color: #555;">How can it remain tracked once its name is no longer visible?</div>
+      </td>
+      <td style="border: 0; text-align: right;">
+        <span class="paper p-bao21">OOPSLA'21</span>
+        <span class="paper p-jia26">PLDI'26</span>
+      </td>
+    </tr>
+  </table>
+  <div class="fragment" style="margin-top: 3%;">
+  <b>Finally, a finer view: when a resource is used, and when it is consumed.</b>
+  <span class="paper p-deng27">WIP</span>
+  </div>
+</section>

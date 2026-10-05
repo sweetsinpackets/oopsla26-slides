@@ -1,0 +1,31 @@
+
+<section>
+  <h2>Conclusion: Statically Safe Resource Management</h2>
+  <div style="margin-top: 1.5%;">
+  <b>We decouple grouping from lifetime, on top of reachability types.</b>
+  </div>
+  <ul class="kw-outline tight takeaway" style="margin-top: 3%;">
+    <li>
+      <span class="kw-t">Arenas</span>
+      <span class="why">group resources via <code class="hl2">at</code>, with a lexical or non-lexical lifetime</span>
+    </li>
+    <li>
+      <span class="kw-t">Lifetimes</span>
+      <span class="why">lexical with <code class="hl2">scoped</code>, for an arena or a single reference</span>
+    </li>
+    <li>
+      <span class="kw-t">Higher-Order</span>
+      <span class="why">an escaping arena is tracked as an escaping reference</span>
+    </li>
+    <li>
+      <span class="kw-t">Reachability Tracking</span>
+      <span class="why">coarsened to the arena, so the store may be cyclic</span>
+    </li>
+  </ul>
+  <div style="margin-top: 3.5%;">
+  <b>One reference type: the same <code class="hl2">Ref[T]</code> for every combination.</b>
+  </div>
+  <div style="margin-top: 1%;">
+  <b>Mechanized in Rocq: progress and preservation; no UAF, flow-insensitively.</b>
+  </div>
+</section>

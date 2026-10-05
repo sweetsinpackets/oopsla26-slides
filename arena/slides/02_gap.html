@@ -1,0 +1,47 @@
+
+<section>
+  <h2>Limitations of Reachability Types</h2>
+  <div style="margin-top: 3%;">
+  <div class="fragment" data-fragment-index="1">
+  <b>No bulk deallocation.</b>
+  <span class="gloss">cells can be grouped, but not deallocated together</span>
+  </div>
+  <div class="fragment" data-fragment-index="1" style="margin-top: 2%;">
+  <b>No lifetime control.</b>
+  <span class="gloss">reclamation is left to garbage collection</span>
+  </div>
+  <div class="fragment" data-fragment-index="2" style="margin-top: 2%;">
+  <b>No cyclic store structures: cells cannot reach later ones (telescoping).</b>
+  <span class="gloss">a cell may reach itself, but no cycle spans several cells</span>
+  </div>
+  </div>
+  <div class="fragment" data-fragment-index="2" style="margin-top: .5%;">
+  <div style="width: 70%; display: inline-block; vertical-align: top;">
+  <pre><code data-trim>
+  val c1 = new Ref(f)         //: Ref[(Int -> Int)??~{q1}??]??~{c1}??
+  val c2 = new Ref(f)         //: Ref[(Int -> Int)??~{q2}??]??~{c2}??
+
+  c2 := (x: Int) => (!c1)(x)  // ok: ??q2?? may mention ??c1??
+  c1 := (x: Int) => (!c2)(x)  // !!error:!! ??q1?? cannot mention ??c2??
+  </code></pre>
+  </div>
+  <div style="width: 27%; display: inline-block; vertical-align: top;">
+  <svg class="store-fig" viewBox="25 0 330 190">
+    <defs><marker id="02m1" orient="auto" markerWidth="10" markerHeight="10" refX="6" refY="3">
+      <path d="M0,0 L7,3 L0,6 z" fill="context-stroke"/></marker></defs>
+    <rect class="ca" x="30" y="56" width="100" height="54"/>
+    <text x="80" y="90">c1</text>
+    <rect class="cb" x="250" y="56" width="100" height="54"/>
+    <text x="300" y="90">c2</text>
+    <g>
+      <path class="arr" d="M246,74 C200,58 170,58 134,74" marker-end="url(#02m1)"/>
+      <text class="note" x="190" y="42">ok</text>
+    </g>
+    <g>
+      <path class="arrnew" d="M134,96 C170,112 200,112 246,96" marker-end="url(#02m1)"/>
+      <text class="rednote" x="190" y="146">&#10007; earlier cannot reach later</text>
+    </g>
+  </svg>
+  </div>
+  </div>
+</section>

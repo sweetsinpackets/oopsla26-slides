@@ -1,0 +1,572 @@
+/* ===== Code font =====
+   Cascadia Code, bundled in dist/custom/fonts/ (Microsoft, SIL OFL), so code
+   looks the same on every machine instead of following each browser's
+   fixed-width font setting. If these files fail to load, a locally installed
+   Cascadia Code is used instead (same size-adjust), and failing that the
+   browser's own fixed-width font: see README, "Code font". Ligatures (=>, :=) are on.
+   size-adjust: the slides were laid out with Chrome's default fixed-width
+   font on this machine (Chinese-locale Chrome), whose Latin letters are
+   0.50 em wide (measured; consistent with NSimSun). Cascadia is 0.586 em, so
+   at 85.33% every code line keeps exactly its designed width and nothing is
+   clipped. To enlarge code, raise this and re-check with tools/shoot.sh. */
+@font-face { font-family: "Cascadia Code"; src: url(fonts/CascadiaCode-Regular.ttf), local("Cascadia Code"), local("CascadiaCode-Regular"); font-weight: 400; size-adjust: 85.33%; }
+@font-face { font-family: "Cascadia Code"; src: url(fonts/CascadiaCode-SemiBold.ttf), local("Cascadia Code SemiBold"), local("CascadiaCode-SemiBold"); font-weight: 500 600; size-adjust: 85.33%; }
+@font-face { font-family: "Cascadia Code"; src: url(fonts/CascadiaCode-Bold.ttf), local("Cascadia Code Bold"), local("CascadiaCode-Bold"); font-weight: 700; size-adjust: 85.33%; }
+:root { --r-code-font: "Cascadia Code", monospace; }
+
+:root {
+  --r-overlay-element-bg-color: 0,0,0;
+  --r-overlay-element-fg-color: 240,240,240;
+
+  /* Per-paper accent colors, used consistently across the lineage diagram,
+     section dividers and inline tags. Keep in sync with .p-* rules below and
+     with the mermaid `classDef`s in slides/00_opening.html. */
+  --c-bao21:  #8c6d1f;  /* OOPSLA'21  lambda*        */
+  --c-wei24:  #1f6f8c;  /* POPL'24    F<:^diamond    */
+  --c-deng25: #2e7d4f;  /* OOPSLA'25  F<:^circ       */
+  --c-he26:   #8c3a1f;  /* OOPSLA'26  A<:^diamond    */
+  --c-jia26:  #6b3f9e;  /* PLDI'26    G<=>^diamond   */
+  --c-deng27: #99306b;  /* WIP        F_eps<:^diamond*/
+}
+
+.reveal .slides section {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  /* outline: 2px solid red; */
+}
+
+.centering {
+  text-align: center;
+}
+
+.reveal figure {
+  text-align: center;
+}
+
+h1,h2,h3,h4 {
+  text-transform: none !important;
+}
+
+.reveal h2 {
+  margin-bottom: 40px;
+}
+
+.reveal div.half {
+  width: 49%;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.reveal div.half:not(:first-child) {
+  margin-left: 1%;
+}
+
+.reveal div.third {
+  width: 32%;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.reveal div.third:not(:first-child) {
+  margin-left: 1%;
+}
+
+.reveal div.quarter {
+  width: 24%;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.reveal div.quarter:not(:first-child) {
+  margin-left: 1%;
+}
+
+.reveal pre.code-wrapper {
+  width: 100%;
+  /* Code blocks, 20% above the original .72em (2026-10-01, as in the arena
+     deck). Enlarged by font size, so line spacing grows with the letters;
+     the font's size-adjust at the top of this file stays at 85.33%. */
+  font-size: .864em;
+}
+
+/* In-text code looks like code in the blocks: upright even inside italic
+   subtitles or quotes (the code font has no italic; the browser would slant
+   it artificially). */
+.reveal code.hl2 { font-style: normal; }
+
+/* reveal.js gives every fragment will-change: opacity, which puts it on its
+   own compositing layer; on Windows, Chrome then draws its text with
+   grayscale instead of ClearType anti-aliasing, so text that arrives on a
+   click looks thinner than text shown from the start. Fragments render as
+   ordinary text instead (the fade still runs). Code is the exception: it is
+   always on its own layer (backface-visibility below), uniformly. */
+.reveal .fragment:not(.custom) { will-change: auto; }
+
+/* Code contrast (advisor, 2026-10-01): comments and the dimmed `...` parts
+   of code (an inline color: gray) read too light on the projector. */
+.reveal pre code .hljs-comment { color: #4d555c; }
+/* Backtick-dimmed remarks in code used to be a lighter #6b6b6b; on the grey
+   code background that was too faint (user, 2026-10-03), so they now take
+   the comment colour. */
+.reveal pre code span[style*="color: gray"] { color: #4d555c !important; }
+
+.reveal pre code {
+  max-height: unset;
+  /* Rasterize code on its own layer, as reveal's step-highlight copies are:
+     same (slightly heavier) text rendering in every block and at every step.
+     Matches the arena deck. */
+  backface-visibility: hidden;
+}
+
+.reveal pre.code-wrapper sup {
+  line-height: 0;
+  /* a qualifier on a one-letter type (T^c) otherwise touches the letter */
+  margin-left: .1em;
+}
+
+.reveal .smaller {
+  font-size: smaller;
+}
+
+.reveal ul:has(li > input[type="checkbox"]) {
+  list-style: none;
+  padding-left: 0;
+}
+
+/* Align checkbox and text nicely */
+.reveal ul li:has(input[type="checkbox"]) {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 10px;
+}
+
+/* Scale checkboxes */
+.reveal input[type="checkbox"] {
+  transform: scale(2);
+  transform-origin: center;
+  /* keep spacing reasonable after scaling */
+  margin: 0.08rem 0.4rem 0.08rem 0;
+  line-height: 1;
+}
+
+.reveal .newtag {
+  font-size: smaller;
+  color: red;
+  vertical-align: top;
+  font-style: italic;
+}
+
+.reveal .cite {
+  font-size: 24pt;
+  color: gray;
+}
+
+.reveal .refs {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  font-size: 20pt;
+  color: gray;
+  width: 100%;
+}
+
+.reveal .hardline {
+  border: 1px solid black;
+}
+
+.reveal .treeblock {
+  display: inline-block;
+  width: auto;
+}
+
+.reveal .tabtree td {
+  border: none;
+  text-align: left;
+  padding: 0em .1em;
+}
+
+/* ===== Table of contents (RevealToc) ===== */
+/* Section dividers clone <ul id="toc"> and mark one <li> as .focus. The
+   focused entry is blown up; its nested detail stays small. */
+
+.reveal .toc .has-focus > li:not(.focus) {
+  opacity: 0.4;
+}
+
+.reveal li.focus {
+  font-weight: bold;
+  font-size: 200%;
+}
+
+/* Detail moved into the focused entry must not inherit the 200% blow-up.
+   Scoped to li.focus so pull-quotes elsewhere in the deck keep their size. */
+.reveal li.focus li,
+.reveal li.focus blockquote {
+  font-weight: normal;
+  font-size: 50%;
+}
+
+/* ===== Fragment variants ===== */
+
+.reveal .one-by-one .fragment {
+  opacity: 0;
+  height: 0;
+  visibility: hidden;
+}
+.reveal .one-by-one .fragment.current-fragment {
+  opacity: 1;
+  height: inherit;
+  visibility: inherit;
+}
+
+.reveal .semi-fade-in.fragment {
+  opacity: .4;
+  visibility: inherit;
+}
+.reveal .semi-fade-in.fragment.visible {
+  opacity: 1;
+}
+
+.reveal .fragment.semi-fade-out.visible {
+  opacity: .4 !important;
+}
+
+.reveal .fragment.hlred-now.current-fragment {
+  color: red;
+}
+
+/* ===== Diagram sizing ===== */
+/* reveal-mermaid.js stretches the rendered SVG to 100% of its container, so
+   the container is what bounds it. With no height the SVG falls back to its
+   natural size and happily overflows the slide. Pick one of these on every
+   .my-mermaid that is not already boxed by a narrow width. */
+
+.reveal .my-mermaid.mm-sm { height: 260px; }
+.reveal .my-mermaid.mm-md { height: 340px; }
+.reveal .my-mermaid.mm-lg { height: 440px; }
+/* fill the leftover vertical space; only valid as a direct child of <section> */
+.reveal .my-mermaid.mm-fill { flex: 1; min-height: 0; }
+
+/* ===== Survey-deck extras ===== */
+
+/* Table built up row by row with .fragment. Reveal keeps invisible fragments
+   in the layout (good: no jumping), but their rules would still be drawn. */
+.reveal table.build tr.fragment:not(.visible) td {
+  border-color: transparent;
+}
+
+/* Inline paper badge, e.g. <span class="paper p-wei24">POPL'24</span> */
+.reveal .paper {
+  font-size: 22pt;
+  font-weight: bold;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.reveal .p-bao21  { color: var(--c-bao21);  }
+.reveal .p-wei24  { color: var(--c-wei24);  }
+.reveal .p-deng25 { color: var(--c-deng25); }
+.reveal .p-he26   { color: var(--c-he26);   }
+.reveal .p-jia26  { color: var(--c-jia26);  }
+.reveal .p-deng27 { color: var(--c-deng27); }
+
+/* A "what changed" delta line under a heading. */
+.reveal .delta {
+  color: gray;
+  margin-top: -2%;
+  font-style: italic;
+}
+
+/* A small uppercase label over a code block (Objects Are Higher-Order); the
+   same rule as the arena deck's .kw-group. */
+.reveal .kw-group {
+  color: #999;
+  font-size: 58%;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin: 0 0 .5em 0;
+}
+
+/* Side-by-side before/after comparison; pair with .half. */
+.reveal .before h4, .reveal .after h4 {
+  margin-bottom: .2em;
+}
+.reveal .before { opacity: .55; }
+
+/* Store figures. One grammar for the whole deck: a cell holds its value;
+   names (.nm) are bold and upright, below the cell with an arrow up to it,
+   and a name internal to a function or closure is grey (.nm.inner);
+   qualifier sets are pink and sit ABOVE what they describe; bent arrows are
+   store or reachability edges, and the red one is the edge the slide is
+   about. Figures are drawn at different SVG scales, so each sets --k to
+   1.46 / (rendered width / viewBox width): every figure's text then renders
+   at the same size, names at about 38 slide units. */
+.reveal svg.store-fig { width: 100%; height: auto; overflow: visible; }
+.reveal .store-fig .cell   { fill: #fdfdfd; stroke: #555; stroke-width: 2; }
+/* A closure is a value, not a cell: a circle holding a lambda, as the
+   OOPSLA'25 paper draws it (opening counter, escaping pairs, cyclic refs). */
+.reveal .store-fig .lam    { fill: #fdfdfd; stroke: #555; stroke-width: 2; }
+.reveal .store-fig .ca     { fill: #ffe1b3; stroke: #a05a00; stroke-width: 2.5; }
+.reveal .store-fig .cb     { fill: #d6e4f7; stroke: #1f4e8c; stroke-width: 2.5; }
+.reveal .store-fig .cg     { fill: #dcedd0; stroke: #2e7d4f; stroke-width: 2.5; }
+.reveal .store-fig text    { font-size: calc(26px * var(--k, 1)); fill: #222; text-anchor: middle; }
+.reveal .store-fig .loc    { font-style: italic; fill: #444; font-size: calc(24px * var(--k, 1)); }
+.reveal .store-fig .nm     { font-weight: 700; }
+.reveal .store-fig .nm.inner { fill: #999; }
+.reveal .store-fig .note   { fill: #666; font-size: calc(22px * var(--k, 1)); }
+.reveal .store-fig .rednote{ fill: #b03030; font-size: calc(22px * var(--k, 1)); }
+/* Qualifier pink, everywhere (code spans, superscripts, MathJax \cao,
+   figures): the former pale violet-red, darkened from 3.1:1 to 5.8:1
+   contrast on white (5.3:1 on the code background), hue moved slightly
+   toward violet to stay apart from the error reds (2026-10-03). */
+.reveal .store-fig .pink   { fill: #B23473; }
+/* Reachability-graph nodes, following deng25 fig. 3: tracked locations are
+   pale blue (.cb), a node two separate references share is yellow, and a node
+   on a store cycle is purple. */
+.reveal .store-fig .cy     { fill: #fff3c4; stroke: #a08000; stroke-width: 2.5; }
+.reveal .store-fig .cp     { fill: #ece0f7; stroke: #6b3f9e; stroke-width: 2.5; }
+.reveal .store-fig .arr    { fill: none; stroke: #333; stroke-width: 2.5; }
+.reveal .store-fig .arrnew { fill: none; stroke: #b03030; stroke-width: 3; }
+.reveal .store-fig .arrat  { fill: none; stroke: #777; stroke-width: 2; stroke-dasharray: 6 5; }
+.reveal .store-fig .box    { fill: #eef2f7; stroke: #1f4e8c; stroke-width: 2.5; }
+.reveal .store-fig .deadbox{ fill: #fbeaea; fill-opacity: .5; stroke: #b03030; stroke-width: 2.5; stroke-dasharray: 8 6; }
+.reveal .store-fig .dead   { opacity: .4; }
+/* Captured environment: resources that outlived the scope that named them.
+   Distinct from .deadbox (red dashed), which means deallocated. */
+.reveal .store-fig .envbox { fill: #f2f4f7; fill-opacity: .7; stroke: #8a8a8a; stroke-width: 2.5; stroke-dasharray: 8 6; }
+
+/* Story keywords (slide 3). The theme embeds Source Sans Pro only up to
+   semibold, so <b> barely stands out from body text; thicken the strokes
+   and enlarge slightly instead of asking for a weight that is not there. */
+.reveal b.kw {
+  font-size: 112%;
+  -webkit-text-stroke: 0.9px currentColor;
+}
+
+/* Act dividers: the story strip (a cloned #toc, act keywords in focus) as
+   chips, then the step's simplest program in the deck's own code-block style,
+   larger, with each keyword written under the code it names. No sentences.
+   The program is colored by hand with highlight.js classes and marked
+   `nohighlight` + `data-noescape`, so the underline spans survive. */
+.reveal .strip > ul {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  list-style: none;
+  margin: 3% 0 0 0;
+  padding: 0;
+  width: 100%;
+  font-size: 80%;
+}
+.reveal .strip > ul > li {
+  position: relative;
+  margin: 0;
+  padding: .12em .85em;
+  border: 2px solid #d9d9d9;
+  border-radius: 999px;
+  color: #a0a0a0;
+}
+.reveal .strip > ul > li + li { margin-left: 1.8em; }
+.reveal .strip > ul > li + li::before {
+  content: "";
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  width: 1.8em;
+  margin-right: 2px;
+  border-top: 2px solid #d9d9d9;
+}
+.reveal .strip .has-focus > li:not(.focus) { opacity: 1; }
+.reveal .strip li.focus {
+  font-size: 100%;
+  font-weight: bold;
+  color: #fff;
+  background: #2f3337;
+  border-color: #2f3337;
+}
+.reveal .story-code {
+  margin-top: 11%;
+  text-align: center;
+}
+.reveal section > .story-code:first-child {
+  margin-top: 17.5%;
+}
+.reveal .story-code pre.code-wrapper,
+.reveal .story-code pre {
+  display: inline-block;
+  width: auto;
+  margin: 0;
+  font-size: 1.45em;
+  text-align: left;
+}
+.reveal .story-code pre code {
+  overflow: visible;
+  padding: .5em 1em 1.6em;
+  line-height: 1.6;
+}
+.reveal .story-code .lab {
+  position: relative;
+  display: inline-block;
+  line-height: 1.2;
+  border-bottom: 3px solid #c9c9c9;
+}
+.reveal .story-code .k {
+  position: absolute;
+  top: 112%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-family: "Source Sans Pro", Helvetica, sans-serif;
+  font-size: 62%;
+  font-weight: bold;
+  color: #2f3337;
+}
+
+/* A divider that also shows each labelled part's type, one row under its
+   keyword label. */
+.reveal .story-code.typed pre code {
+  padding-bottom: 2.9em;
+}
+.reveal .story-code .ty {
+  position: absolute;
+  top: 196%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 72%;
+}
+
+/* A single display line of code, in the divider's larger code-block style but
+   without the gutter that the keyword labels need. */
+.reveal .story-code.plain pre code {
+  padding: .45em 1em;
+}
+
+/* The effects divider leaves the story: a three-column grid. Reachability
+   types on the left, a long dashed arrow across to effects on the right, and
+   arenas in the middle column under the arrow, a nearer extension with its
+   own note. Work-in-progress color throughout. */
+.reveal .ext-grid {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  justify-content: center;
+  justify-items: center;
+  align-items: center;
+  column-gap: .9em;
+  row-gap: .7em;
+  margin-top: 5%;
+  font-size: 80%;
+}
+.reveal .ext-grid .chip {
+  display: inline-block;
+  padding: .12em .85em;
+  border: 2px solid #d9d9d9;
+  border-radius: 999px;
+  color: #a0a0a0;
+  white-space: nowrap;
+}
+.reveal .ext-grid .chip.ext {
+  border-style: dashed;
+  border-color: var(--c-deng27, #99306b);
+  color: var(--c-deng27, #99306b);
+}
+.reveal .ext-grid .chip.ext.here {
+  color: #fff;
+  background: var(--c-deng27, #99306b);
+  border-style: solid;
+}
+.reveal .ext-grid .conn {
+  position: relative;
+  width: 12em;
+  height: 0;
+  border-top: 2px dashed var(--c-deng27, #99306b);
+}
+.reveal .ext-grid .conn::after {
+  content: "";
+  position: absolute;
+  right: -2px;
+  top: -6px;
+  border-left: 11px solid var(--c-deng27, #99306b);
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+}
+.reveal .ext-grid .mid {
+  display: inline-flex;
+  align-items: center;
+  gap: .5em;
+}
+.reveal .ext-grid .note {
+  color: gray;
+  font-size: 85%;
+  white-space: nowrap;
+}
+
+/* Related Approaches: three columns, most rows two lines; keep them tight. */
+.reveal table.related td { padding: .22em .45em; vertical-align: top; }
+
+/* A small grey line under a bold claim, as in the arena deck. */
+.reveal .gloss {
+  display: block;
+  color: gray;
+  font-size: smaller;
+  margin-top: .25em;
+}
+
+
+/* The talk's goal line (From Ownership to Reachability): the same pale band
+   the arena deck uses for its key premise. A mild highlight only: text keeps
+   its weight, colour and size. */
+.reveal .goal {
+  display: inline-block;
+  background: #fdf5d8;
+  border-radius: 6px;
+  padding: .15em .45em;
+  margin-left: -.45em;
+}
+
+/* Collaborators slide: rows of four, the last row centered, one round photo
+   per person, the name in bold and the affiliation in grey below. */
+.reveal .people {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  row-gap: 1.2em;
+  margin-top: 3%;
+  text-align: center;
+}
+.reveal .people figure { margin: 0; width: 25%; }
+.reveal .people img {
+  display: block;
+  width: 170px;
+  height: 170px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+/* placeholder for a collaborator who prefers no photo */
+.reveal .people .blank {
+  width: 170px;
+  height: 170px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  background: #e8e8e8;
+}
+.reveal .people b { display: block; }
+.reveal .people span { display: block; color: #555; font-size: 80%; }
+
+/* Code that builds line by line inside ONE block (ported from the arena
+   deck): <pre class="grow"><code data-line-numbers="1-8|1-10"
+   data-fragment-index="1">. Lines not yet reached are hidden, not dimmed,
+   and the line-number gutter is dropped; data-fragment-index sets the index
+   of the SECOND step, so a figure can follow it. Each step is a copy of the
+   block on its own compositing layer, so the block itself is put on the same
+   footing (backface-visibility) to keep the text equally dark across steps,
+   and steps switch instantly instead of fading. */
+.reveal pre.grow .hljs-ln-numbers { display: none; }
+.reveal pre.grow .hljs-ln-code { padding-left: 0; }
+.reveal pre.grow .hljs.has-highlights tr:not(.highlight-line) { opacity: 0; }
+.reveal pre.grow .hljs.has-highlights.fragment { transition: none; }
+.reveal pre.grow code { backface-visibility: hidden; }

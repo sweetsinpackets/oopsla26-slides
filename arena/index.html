@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+  <title>When Lifetimes Liberate @ OOPSLA'26</title>
+
+  <link rel="stylesheet" href="dist/reset.css" />
+  <link rel="stylesheet" href="dist/reveal.css" />
+  <link rel="stylesheet" href="dist/theme/white.css" />
+
+  <!-- Theme used for syntax highlighted code -->
+  <link rel="stylesheet" href="dist/plugin/highlight/stackoverflow-light.css" />
+  <link rel="stylesheet" href="dist/custom/style.css" />
+</head>
+
+<body>
+  <script>
+  // Point these at ./node_modules/... to run fully offline (`npm install` first).
+  const localPaths = {
+    // mathjax: './node_modules/mathjax/tex-chtml.js',
+    // mathjaxFont: './node_modules/@mathjax/mathjax-newcm-font',
+    // mermaid: './node_modules/mermaid/dist/mermaid.esm.min.mjs',
+    // mermaidElk: './node_modules/@mermaid-js/layout-elk/dist/mermaid-layout-elk.esm.min.mjs',
+    // chartjs: './node_modules/chart.js/dist/chart.umd.min.js',
+  }
+  window.charts = {};
+  </script>
+  <div class="reveal">
+    <div class="slides" data-include="slides/main.html"></div>
+  </div>
+
+  <script src="dist/reveal.js"></script>
+  <script src="dist/plugin/markdown.js"></script>
+  <script src="dist/plugin/notes.js"></script>
+  <script src="dist/plugin/math.js"></script>
+  <script src="dist/plugin/zoom.js"></script>
+  <script src="dist/plugin/highlight.js"></script>
+  <script src="dist/custom/reachability.js"></script>
+  <script src="dist/custom/reveal-includes.js"></script>
+  <script src="dist/custom/reveal-toc.js"></script>
+  <script src="dist/custom/reveal-mermaid.js"></script>
+  <script src="dist/custom/reveal-chartjs.js"></script>
+
+  <script>
+  // ===== Math / equations =====
+
+  const mathjaxOptions = {
+    mathjax: localPaths.mathjax,
+    output: {
+      scale: 0.8,
+      fontPath: localPaths.mathjaxFont
+    },
+    // $tex$ spans captured inside code blocks carry this class; without it,
+    // MathJax's skipHtmlTags (pre, code) silently drops them.
+    options: { processHtmlClass: 'mathjax_process' },
+    startup: { pageReady: typesetCollectedMath },
+    tex:     { macros: {
+      cao:      "\\color[RGB]{178,52,115}",
+      cer:      "\\color{red}",
+      cdm:      "\\color{gray}",
+
+      // the calculi of this paper and its base
+      weilang:  "{\\sf F}_{<:}^{\\qfresh}",
+      helang:   "{\\sf A}_{<:}^{\\qfresh}",
+      hescopelang: "{\\left\\{\\sf A\\right\\}}_{<:}^{\\qfresh}",
+
+      // core reachability notation
+      qfresh:   "{\\scriptsize♦}",
+      qbot:     "\\varnothing",
+      G:        "\\Gamma",
+      ts:       "\\vdash",
+      flt:      "\\varphi",
+      TRef:     ["\\textsf{Ref}[#1]", 1],
+      // 2D store cell: location + offset
+      lot:      ["\\langle #1,\\, #2\\rangle", 2],
+    }},
+  };
+
+  // ===== Code highlighting =====
+  // Notation in <code> blocks: ~{q} superscript qualifier, ~* freshness ♦,
+  // ~0 empty ∅, ??pink??, !!red!!, `gray`, $tex$, |- |-> -> ==> \u \E \A <<
+
+  const highlightOptions = {
+    beforeHighlight(hljs) {
+      hljs.registerLanguage("rt", rtLangDef);
+      hljs.configure({ languages: ["rt"] });
+      hljs.addPlugin(createHighlightAnnotationPlugin([
+        { regex: /\$([^$]+)\$/g,   apply: captureMathSpan },
+        { translations: {
+          '|->': '↦',
+        }},
+        { translations: {
+            '|-':  '⊢',
+            '==>': '⟹',
+            '->':  '→',
+            '~*':  '♦',
+            '~0':  '∅',
+            '\\u': 'μ',
+            '\\E': '∃',
+            '\\A': '∀',
+            '<<':  '≪',
+        }},
+        { regex: /~\{([^\}]+)\}/g, apply: makeSup },
+        { regex: /!!(.+?)!!/g,     apply: makeColorSpan('red') },
+        { regex: /\?\?(.+?)\?\?/g, apply: makeColorSpan('#B23473') },
+        { regex: /`([^`]+)`/g,     apply: makeColorSpan('gray') },
+      ]));
+    }
+  }
+
+  // ===== Reveal options =====
+
+  Reveal.initialize({
+    hash: true,
+    // Keep the fragment index OUT of the URL. With hash:true Reveal otherwise
+    // writes #/0/0/3 as you click, so a reload - or reopening the deck at the
+    // last URL - lands with that slide's build already played. On the title
+    // slide that meant the four keywords came up already highlighted and the
+    // light-up beat was silently skipped.
+    fragmentInURL: false,
+    // Auto-animate takes ownership of every property it animates, and `color`
+    // is in its default list. The title slide's keywords are BOTH the
+    // highlight fragment and the auto-animate pair, so auto-animate would pin
+    // their colour: in scroll view the accent then survived the fragment
+    // reset, and the keywords never went back to black on the way up.
+    // The accent is identical on both sides of the morph, so animating colour
+    // gains nothing - drop it and let the stylesheet own the highlight.
+    autoAnimateStyles: [
+      "opacity", "background-color", "padding", "font-size", "line-height",
+      "letter-spacing", "border-width", "border-color", "border-radius",
+      "outline", "outline-offset"
+    ],
+    controls: false,
+    slideNumber: "c/t",
+    navigationMode: "linear",
+    width: 1536,
+    height: 960,
+    showNotes: false,
+    center: false,
+    margin: 0.2,
+    transition: "fade",
+    // 16-minute talk slot, Q&A excluded
+    totalTime: 960,
+
+    highlight: highlightOptions,
+    mathjax4:  mathjaxOptions,
+    mermaid: {
+      theme: 'neutral',
+      look: 'handDrawn',
+      themeVariables: {
+        fontSize: '16px',
+      },
+      path: localPaths.mermaid,
+      elkPath: localPaths.mermaidElk,
+    },
+    chartjs: {
+      path: localPaths.chartjs,
+      default: {
+        font: { size: 32 },
+      },
+      charts: window.charts
+    },
+
+    plugins: [
+      RevealIncludes,
+      RevealToc,
+      RevealHighlight,
+      RevealNotes,
+      RevealZoom,
+      RevealMath.MathJax4,
+      RevealMermaid,
+      RevealChartjs,
+    ],
+  }).then(() => {
+    highlightExtras('code.hl2');
+
+    // "v" toggles deck view <-> scroll view (reloads; hash preserves position)
+    Reveal.addKeyBinding(
+      { keyCode: 86, key: 'V', description: 'Toggle scroll / deck view' },
+      () => {
+        const url = new URL(window.location.href);
+        if (url.searchParams.get('view') === 'scroll') url.searchParams.delete('view');
+        else url.searchParams.set('view', 'scroll');
+        window.location.href = url.toString();
+      }
+    );
+  });
+  </script>
+</body>
+
+</html>

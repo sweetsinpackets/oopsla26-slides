@@ -1,0 +1,258 @@
+<section>
+  <div class="toc strip" data-focus="allocated named"></div>
+  <div class="story-code typed"><pre><code class="hljs nohighlight" data-noescape><span class="lab"><span class="hljs-keyword">val</span> a<span class="k">named</span><span class="ty"><span class="hljs-type">Ref</span>[<span class="hljs-type">Int</span>]<sup style="color: #B23473">a</sup></span></span> = <span class="lab"><span class="hljs-keyword">new</span> <span class="hljs-type">Ref</span>(<span class="hljs-number">0</span>)<span class="k">allocated</span><span class="ty"><span class="hljs-type">Ref</span>[<span class="hljs-type">Int</span>]<sup style="color: #B23473">&#9830;</sup></span></span></code></pre></div>
+</section>
+
+
+<section>
+  <h2>Freshness and Aliases</h2>
+  <div style="width: 62%; display: inline-block; vertical-align: top; margin-top: 3%;">
+  <pre><code data-trim>
+  new Ref(1)          //: Ref[Int]??~{~*}??  `no name yet`
+  val a = new Ref(1)  //: Ref[Int]??~{a}??
+  val b = new Ref(2)  //: Ref[Int]??~{b}??
+  </code></pre>
+  <div class="fragment" data-fragment-index="1">
+  <pre><code data-trim>
+  val s = a           //: Ref[Int]??~{s}?? &lt;: Ref[Int]??~{a}??
+  </code></pre>
+  </div>
+  </div>
+  <div style="width: 36%; display: inline-block; vertical-align: top; margin-top: 3%;">
+    <svg class="store-fig" viewBox="0 0 440 210" style="--k: 1.16;">
+      <defs>
+        <marker id="ahfr" viewBox="0 0 10 10" refX="9" refY="5"
+                markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/>
+        </marker>
+      </defs>
+      <rect class="cg" x="10"  y="36" width="104" height="60"/>
+      <rect class="ca" x="188" y="36" width="104" height="60"/>
+      <rect class="cb" x="326" y="36" width="104" height="60"/>
+      <text x="62"  y="74">1</text>
+      <text x="240" y="74">1</text>
+      <text x="378" y="74">2</text>
+      <text class="pink" x="126" y="46" font-size="28">&#9830;</text>
+      <text class="note" x="62" y="182">no name</text>
+      <text class="nm" x="240" y="182">a</text>
+      <path class="arr" d="M240,156 L240,104" marker-end="url(#ahfr)"/>
+      <text class="nm" x="378" y="182">b</text>
+      <path class="arr" d="M378,156 L378,104" marker-end="url(#ahfr)"/>
+      <g class="fragment" data-fragment-index="1">
+        <text class="nm" x="162" y="182">s</text>
+        <path class="arr" d="M174,173 L223,173" marker-end="url(#ahfr)"/>
+      </g>
+    </svg>
+  </div>
+  <div style="margin-top: 4%;">
+  <b>${\cao\qfresh}$ represents a new resource: separate from all existing ones, and from each other.</b>
+  </div>
+  <div class="fragment" data-fragment-index="1" style="margin-top: 2%;">
+  <b>An alias is a second name for the same resource: its qualifier upcasts to <code class="hl2">??{a}??</code>.</b>
+  </div>
+</section>
+
+
+<section>
+  <h2>The Separation Check</h2>
+  <pre style="margin-top: 3%;"><code data-trim>
+  val x = new Ref(1)          //: Ref[Int]??~{x}??
+  val y = x                   //: Ref[Int]??~{y}?? &lt;: Ref[Int]??~{x}??
+  val z = x                   //: Ref[Int]??~{z}?? &lt;: Ref[Int]??~{x}??
+  par { y := 3 } { z := 4 }   // !!error:!! both alias x
+  </code></pre>
+  <div style="display: flex; justify-content: space-between; margin-top: 1%;">
+    <div style="width: 46%; text-align: center;">
+      <p class="kw-group">as written</p>
+    <svg class="store-fig" viewBox="0 0 300 268" style="width: 58%; --k: 1.07;">
+      <defs>
+        <marker id="ahsc1" viewBox="0 0 10 10" refX="9" refY="5"
+                markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/>
+        </marker>
+      </defs>
+      <circle cx="60"  cy="80" r="30" fill="none" stroke="#B23473" stroke-width="2.5" stroke-dasharray="7 5"/>
+      <circle cx="240" cy="80" r="30" fill="none" stroke="#B23473" stroke-width="2.5" stroke-dasharray="7 5"/>
+      <text class="pink" x="60"  y="38">{y}</text>
+      <text class="pink" x="240" y="38">{z}</text>
+      <text class="nm" x="60"  y="89">y</text>
+      <text class="nm" x="240" y="89">z</text>
+      <text class="nm" x="150" y="169">x</text>
+      <path class="arr" d="M80,98 L130,142"  marker-end="url(#ahsc1)"/>
+      <path class="arr" d="M220,98 L170,142" marker-end="url(#ahsc1)"/>
+      <path class="arr" d="M150,180 L150,210" marker-end="url(#ahsc1)"/>
+      <rect class="ca" x="110" y="214" width="80" height="48"/>
+      <text x="150" y="247">1</text>
+    </svg>
+      <div style="margin-top: 1%; text-wrap: balance;"><b><code class="hl2">??{y}??</code> and <code class="hl2">??{z}??</code> share no name,
+      yet both reach the same cell.</b></div>
+    </div>
+    <div class="fragment" style="width: 46%; text-align: center;">
+      <p class="kw-group">transitive closure</p>
+    <svg class="store-fig" viewBox="0 0 300 268" style="width: 58%; --k: 1.07;">
+      <defs>
+        <marker id="ahsc2" viewBox="0 0 10 10" refX="9" refY="5"
+                markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/>
+        </marker>
+      </defs>
+      <rect x="15"  y="90" width="180" height="60" rx="30" transform="rotate(41.6 105 120)"
+            fill="#B23473" fill-opacity=".12" stroke="#B23473" stroke-width="2.5" stroke-dasharray="7 5"/>
+      <rect x="105" y="90" width="180" height="60" rx="30" transform="rotate(-41.6 195 120)"
+            fill="#B23473" fill-opacity=".12" stroke="#B23473" stroke-width="2.5" stroke-dasharray="7 5"/>
+      <text class="pink" x="60"  y="38">{y, <tspan style="fill: #b03030; font-weight: 700;">x</tspan>}</text>
+      <text class="pink" x="240" y="38">{z, <tspan style="fill: #b03030; font-weight: 700;">x</tspan>}</text>
+      <text class="nm" x="60"  y="89">y</text>
+      <text class="nm" x="240" y="89">z</text>
+      <text class="nm" x="150" y="169" style="fill: #b03030;">x</text>
+      <path class="arrnew" d="M80,98 L130,142"  marker-end="url(#ahsc2)"/>
+      <path class="arrnew" d="M220,98 L170,142" marker-end="url(#ahsc2)"/>
+      <path class="arr" d="M150,180 L150,210" marker-end="url(#ahsc2)"/>
+      <rect class="ca" x="110" y="214" width="80" height="48"/>
+      <text x="150" y="247">1</text>
+    </svg>
+      <div style="margin-top: 1%; text-wrap: balance;"><b>Separation is checked on transitive closures,
+      which overlap at <code>x</code>.</b></div>
+    </div>
+  </div>
+</section>
+
+
+<section>
+  <h2>Nested References</h2>
+  <div style="margin-top: 2%;">
+  <b>A reference's qualifier tracks only its immediate reachability, not its referent's.</b>
+  </div>
+  <pre style="margin-top: 3%;"><code data-trim>
+  val inner  = new Ref(0)       //: Ref[Int]??~{inner}??
+  val outer1 = new Ref(inner)   //: Ref[Ref[Int]??~{inner}??]??~{outer1}??
+  val outer2 = new Ref(inner)   //: Ref[Ref[Int]??~{inner}??]??~{outer2}??
+  !outer1                       //: Ref[Int]??~{inner}??
+  </code></pre>
+  <div style="text-align: center; margin-top: 1%;">
+    <svg class="store-fig" viewBox="0 0 440 210" style="width: 38%; --k: 1.1;">
+      <defs>
+        <marker id="ahnr" viewBox="0 0 10 10" refX="9" refY="5"
+                markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/>
+        </marker>
+      </defs>
+      <text class="pink" x="55"  y="36">{outer1}</text>
+      <text class="pink" x="220" y="36">{inner}</text>
+      <text class="pink" x="385" y="36">{outer2}</text>
+      <rect class="cb" x="10"  y="50" width="90" height="56"/>
+      <rect class="ca" x="175" y="50" width="90" height="56"/>
+      <rect class="cb" x="340" y="50" width="90" height="56"/>
+      <circle cx="40"  cy="78" r="6.5" fill="#333"/>
+      <circle cx="400" cy="78" r="6.5" fill="#333"/>
+      <text x="220" y="87">0</text>
+      <path class="arr" d="M40,78 L167,78"  marker-end="url(#ahnr)"/>
+      <path class="arr" d="M400,78 L273,78" marker-end="url(#ahnr)"/>
+      <text class="nm" x="55"  y="186">outer1</text>
+      <text class="nm" x="220" y="186">inner</text>
+      <text class="nm" x="385" y="186">outer2</text>
+      <path class="arr" d="M55,160 L55,109"   marker-end="url(#ahnr)"/>
+      <path class="arr" d="M220,160 L220,109" marker-end="url(#ahnr)"/>
+      <path class="arr" d="M385,160 L385,109" marker-end="url(#ahnr)"/>
+    </svg>
+  </div>
+  <div style="margin-top: 2%;">
+  <b><code>!outer1</code> recovers exactly the referent's reachability.</b>
+  </div>
+  <div style="margin-top: 2%;">
+  <b>Two references holding <code>inner</code> stay separate: <code class="hl2">??{outer1}??</code> and <code class="hl2">??{outer2}??</code> are disjoint.</b>
+  </div>
+</section>
+
+
+<section>
+  <h2>Cyclic References</h2>
+  <div style="margin-top: 2%; font-size: 120%; text-align: center;">
+  <b><code class="hl2">\u??z??.Ref[T??~{z}??]</code></b>
+  </div>
+  <div style="margin-top: 2%;">
+  <b>The binder <code class="hl2">??z??</code> names the reference in its own type, so its referent may reach it.</b>
+  </div>
+  <div class="fragment" data-fragment-index="1" style="margin-top: 3%;">
+  <b>Landin's knot: recursion through the store, with no built-in fixed point.</b>
+  <span class="cite">&rarr; OOPSLA'25</span>
+  </div>
+  <pre class="fragment" data-fragment-index="1" style="margin-top: 2%;"><code data-trim>
+  val c = new Ref((x: Int) => x)   //: \uz.Ref[(Int -> Int)??~{z}??]??~{c}??
+  c := (x: Int) => (!c)(x)         // ok: the function reaches c, and z stands for c
+  </code></pre>
+  <div class="fragment" data-fragment-index="1" style="text-align: center; margin-top: 1%;">
+    <svg class="store-fig" viewBox="0 0 440 210" style="width: 38%; --k: 1.1;">
+      <defs>
+        <marker id="ahcy" viewBox="0 0 10 10" refX="9" refY="5"
+                markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/>
+        </marker>
+      </defs>
+      <rect class="cp" x="60" y="70" width="120" height="56"/>
+      <circle cx="90" cy="98" r="6.5" fill="#333"/>
+      <circle class="lam" cx="330" cy="98" r="30"/>
+      <text x="330" y="108">&#955;</text>
+      <path class="arrnew" d="M90,98 L292,98" marker-end="url(#ahcy)"/>
+      <text class="pink" x="236" y="88">z</text>
+      <path class="arr" d="M322,67 C312,12 150,12 140,62" marker-end="url(#ahcy)"/>
+      <text class="pink" x="384" y="62">{c}</text>
+      <text class="nm" x="120" y="196">c</text>
+      <path class="arr" d="M120,170 L120,129" marker-end="url(#ahcy)"/>
+    </svg>
+  </div>
+  <div class="fragment" data-fragment-index="1" style="margin-top: 1%;">
+  <b>Without cyclic references, every well-typed program terminates.</b>
+  </div>
+</section>
+
+
+<section>
+  <h2>Cycles Across Arenas</h2>
+  <div style="margin-top: 2%;">
+  <b>Coarse-grained reachability tracking: an arena's cells are tracked by the arena.</b>
+  </div>
+  <div style="display: flex; align-items: flex-start; margin-top: 3%;">
+    <div style="width: 57%;">
+      <pre style="margin: 0;"><code data-trim>
+  val a = new Ref(...)    //: Top??~{a}??
+  val b = new Ref(a)      //: Ref[Top??~{a}??]??~{b}??
+  val c = new Ref(b) at a //: Ref[Top??~{b}??]??~{c}?? &lt;: Top??~{a}??
+      </code></pre>
+      <pre class="fragment" data-fragment-index="1" style="margin: 0; margin-top: 2%;"><code data-trim>
+  b := c                  // ok: closes the cycle
+      </code></pre>
+    </div>
+    <div style="width: 41%; margin-left: 2%;">
+      <svg class="store-fig" viewBox="0 0 290 172" style="width: 72.5%; --k: .93;">
+        <defs>
+          <marker id="ahxa" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/>
+          </marker>
+        </defs>
+        <text class="pink" x="72"  y="26">{a}</text>
+        <text class="pink" x="222" y="26">{b}</text>
+        <rect x="25"  y="38" width="94" height="120" rx="12" fill="none" stroke="#a05a00" stroke-width="3"/>
+        <rect x="175" y="38" width="94" height="72"  rx="12" fill="none" stroke="#1f4e8c" stroke-width="3"/>
+        <rect class="ca" x="37"  y="50" width="70" height="48"/>
+        <rect class="ca" x="37"  y="98" width="70" height="48"/>
+        <rect class="cb" x="187" y="50" width="70" height="48"/>
+        <text class="nm" x="72"  y="83">a</text>
+        <text class="nm" x="72"  y="131">c</text>
+        <text class="nm" x="222" y="83">b</text>
+        <path class="arr" d="M109,118 C138,118 150,96 171.5,92" marker-end="url(#ahxa)"/>
+        <path class="arr fragment fade-out" data-fragment-index="1"
+              d="M185,68 C164,62 144,62 123,70" marker-end="url(#ahxa)"/>
+        <path class="arrnew fragment" data-fragment-index="1"
+              d="M222,100 C222,156 160,142 122.5,138" marker-end="url(#ahxa)"/>
+      </svg>
+    </div>
+  </div>
+  <div class="fragment" data-fragment-index="1" style="margin-top: 2%;">
+  <b>A cell may reach later cells, if they join an arena already reached.</b>
+  </div>
+  <div class="fragment" data-fragment-index="1" style="margin-top: 5%;">
+  <b>The arena talk on Wednesday (OOPSLA'26) covers the details.</b>
+  </div>
+</section>

@@ -1,0 +1,219 @@
+<section>
+  <div class="toc strip" data-focus="returned"></div>
+  <div class="story-code"><pre><code class="hljs nohighlight" data-noescape>{ <span class="hljs-keyword">val</span> a = <span class="hljs-keyword">new</span> <span class="hljs-type">Ref</span>(<span class="hljs-number">0</span>); <span class="lab">() =&gt; a<span class="k">returned</span></span> }</code></pre></div>
+</section>
+
+
+<section>
+  <h2>Escaping Closures and Avoidance</h2>
+  <div style="margin-top: 2%;">
+  <b>An escaping closure still reaches its captured cells, but its type cannot name them.</b>
+  <span class="gloss">the avoidance problem, as in bounded existential types, DOT, and module systems</span>
+  </div>
+  <pre style="margin-top: 3%;"><code data-trim>
+  def mkRef() = {
+      val b = new Ref(42)
+      () => b            //: (Unit -> Ref[Int]??~{b}??)??~{b}??
+  }
+  val fn = mkRef()       // b is not visible here
+  </code></pre>
+  <div class="fragment" data-fragment-index="1" style="margin-top: 3%;">
+  <b>Replacing <code>b</code> with ${\cao\qfresh}$ would promise a new reference on every call, which is unsound.</b>
+  </div>
+  <pre class="fragment" data-fragment-index="1" style="margin-top: 2%;"><code data-trim>
+  //: (Unit -> Ref[Int]!!~{~*}!!)!!~{~*}!!
+  par { fn() := 1 } { fn() := 2 }    // !!unsound!!: the same cell twice
+  </code></pre>
+</section>
+
+
+<section>
+  <h2>Self-References</h2>
+  <p class="delta">preserve tracking with function self-references</p>
+  <div class="story-code plain" style="margin-top: 2%;">
+  <pre style="font-size: 1.15em;"><code data-trim>
+  (??f??(Unit) -> Ref[Int]??~{f}??)??~{~*}??
+  </code></pre>
+  </div>
+  <div class="fragment" data-fragment-index="1" style="width: 60%; display: inline-block; vertical-align: top; margin-top: 3%;">
+  <pre style="margin-top: 0;"><code data-trim>
+  def mkRef() = {
+      val b = new Ref(42)
+      () => b            //: (Unit -> Ref[Int]??~{b}??)??~{b}??
+  }                      //: (??f??(Unit) -> Ref[Int]??~{f}??)??~{~*}??
+
+  </code></pre>
+  <div style="margin-top: 2%;">
+  <b>Captured names are widened to <code>f</code>, &nbsp;<code class="hl2">??{b}?? &lt;: ??{f}??</code></b>
+  </div>
+  <pre class="fragment" data-fragment-index="2" style="margin-top: 3%;"><code data-trim>
+  val fn = mkRef()
+  fn()              //: Ref[Int]??~{fn}??  `f becomes fn`
+  par { fn() := 1 } { fn() := 2 }  // !!error:!! overlap
+  </code></pre>
+  <div class="fragment smaller" data-fragment-index="2" style="margin-top: 2%; color: gray;">
+  both calls reach <code class="hl2">??fn??</code>, so the race is rejected
+  </div>
+  </div>
+  <div class="fragment" data-fragment-index="1" style="width: 38%; display: inline-block; vertical-align: top; margin-top: 3%;">
+    <svg class="store-fig" viewBox="0 0 380 270" style="width: 96%;">
+      <defs>
+        <marker id="ahe1" viewBox="0 0 10 10" refX="9" refY="5"
+                markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/>
+        </marker>
+      </defs>
+      <rect class="box" x="50" y="20" width="280" height="155" rx="12"/>
+      <text class="nm" x="80" y="50">f</text>
+      <rect class="ca" x="130" y="40" width="150" height="62"/>
+      <text x="205" y="80">42</text>
+      <g class="fragment fade-out" data-fragment-index="2">
+        <path class="arr" d="M205,140 L205,110" marker-end="url(#ahe1)"/>
+        <text class="nm inner" x="205" y="164">b</text>
+      </g>
+      <g class="fragment" data-fragment-index="2">
+        <path class="arr dead" d="M205,140 L205,110" marker-end="url(#ahe1)"/>
+        <text class="nm inner dead" x="205" y="164">b</text>
+        <text x="190" y="246" font-weight="700">fn</text>
+        <path class="arr" d="M190,224 L190,183" marker-end="url(#ahe1)"/>
+      </g>
+    </svg>
+  </div>
+</section>
+
+
+<section>
+  <h2>Escaping Pairs: Transparent to Opaque</h2>
+  <pre style="margin-top: 1%;"><code data-trim>
+  // `T = Unit -> Unit`
+  def counter(n: Int) = {
+      val c = new Ref(n)
+      (() => c := !c + 1, () => c := !c - 1)   // transparent: Pair[T??~{c}??, T??~{c}??]??~{c}??
+  }                                            // opaque:      \u??p??.Pair[T??~{p}??, T??~{p}??]??~{~*}??
+  </code></pre>
+  <div style="display: flex; justify-content: space-between; margin-top: 1%;">
+    <div style="width: 46%; text-align: center;">
+      <p class="kw-group">transparent</p>
+    <svg class="store-fig" viewBox="40 0 260 222" style="width: 54%;">
+      <defs>
+        <marker id="ahcv1" viewBox="0 0 10 10" refX="9" refY="5"
+                markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/>
+        </marker>
+      </defs>
+      <text class="pink" x="152" y="36">{c}</text>
+      <text class="pink" x="248" y="36">{c}</text>
+      <circle class="lam" cx="128" cy="69" r="24"/>
+      <circle class="lam" cx="224" cy="69" r="24"/>
+      <text x="128" y="78">&#955;</text>
+      <text x="224" y="78">&#955;</text>
+      <path class="arr" d="M139,92 L164,144" marker-end="url(#ahcv1)"/>
+      <path class="arr" d="M213,92 L188,144" marker-end="url(#ahcv1)"/>
+      <rect class="ca" x="136" y="150" width="80" height="46"/>
+      <text x="176" y="181">n</text>
+      <text class="nm" x="84" y="181">c</text>
+      <path class="arr" d="M98,173 L130,173" marker-end="url(#ahcv1)"/>
+    </svg>
+      <div style="margin-top: 1%; text-wrap: balance;"><b>Inside <code>counter</code>, both reach <code>c</code>.</b></div>
+    </div>
+    <div class="fragment" data-fragment-index="1" style="width: 46%; text-align: center;">
+      <p class="kw-group">opaque</p>
+    <svg class="store-fig" viewBox="40 0 260 222" style="width: 54%;">
+      <defs>
+        <marker id="ahcv2" viewBox="0 0 10 10" refX="9" refY="5"
+                markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/>
+        </marker>
+      </defs>
+      <rect class="box" x="48" y="6" width="244" height="210" rx="12"/>
+      <text class="nm" x="68" y="36">p</text>
+      <text class="pink" x="152" y="36">{p}</text>
+      <text class="pink" x="248" y="36">{p}</text>
+      <circle class="lam" cx="128" cy="69" r="24"/>
+      <circle class="lam" cx="224" cy="69" r="24"/>
+      <text x="128" y="78">&#955;</text>
+      <text x="224" y="78">&#955;</text>
+      <path class="arr" d="M139,92 L164,144" marker-end="url(#ahcv2)"/>
+      <path class="arr" d="M213,92 L188,144" marker-end="url(#ahcv2)"/>
+      <rect class="ca" x="136" y="150" width="80" height="46"/>
+      <text x="176" y="181">n</text>
+      <text class="nm inner" x="84" y="181">c</text>
+      <path class="arr" d="M98,173 L130,173" marker-end="url(#ahcv2)"/>
+    </svg>
+      <div style="margin-top: 1%; text-wrap: balance;"><b>Outside <code>counter</code>, both reach <code>p</code>.</b></div>
+    </div>
+  </div>
+  <div class="fragment" data-fragment-index="1" style="margin-top: 2%;">
+  <b>The problem: make the pair opaque by subtyping alone, with no term-level coercion.</b>
+  </div>
+</section>
+
+
+<section>
+  <h2>Avoidance by Subtyping</h2>
+  <div style="margin-top: 3%;">
+  <b>Pack</b> <span style="color: gray;">the name into the self-reference,
+  while <code>c</code> is still in scope</span>
+  <pre><code data-trim>
+  [c: Ref[Int]??~{~*}??] |- Pair[T??~{c}??, T??~{c}??]??~{c}??  &lt;:  \u??p??.Pair[T??~{p}??, T??~{p}??]??~{c}??
+  </code></pre>
+  </div>
+  <div style="margin-top: 1%;">
+  <b>The self-reference <code>p</code> is bound with the pair's qualifier, so it covers <code>c</code>.</b>
+  </div>
+  <div class="fragment" style="margin-top: 3%;">
+  <b>Substitute</b> <span style="color: gray;">once
+  <code class="hl2">??c??</code> is gone, and only at the top level</span>
+  <pre><code data-trim>
+  \u??p??.Pair[T??~{p}??, T??~{p}??]??~{c}??   ==>   \u??p??.Pair[T??~{p}??, T??~{p}??]??~{~*}??   `[c |-> ~*]`
+  </code></pre>
+  </div>
+  <div class="fragment" style="margin-top: 3%;">
+  <b>Unpack</b> <span style="color: gray;">when the pair has a name
+  again</span>
+  <pre><code data-trim>
+  [ctr: ...??~{~*}??] |- \u??p??.Pair[T??~{p}??, T??~{p}??]??~{ctr}??  &lt;:  Pair[T??~{ctr}??, T??~{ctr}??]??~{ctr}??
+  </code></pre>
+  </div>
+  <div class="fragment" style="margin-top: 2%;">
+  <b>Functions work the same way, with <code>f</code> for <code>p</code>, in every covariant position.</b>
+  <span class="gloss">contravariant occurrences are dropped to
+  <code class="hl2">??~0??</code>, nested ones use the outermost self-reference</span>
+  </div>
+</section>
+
+
+<section>
+  <h2>What Avoidance by Subtyping Brings</h2>
+  <table style="width: 100%; margin-top: 3%;">
+    <tr>
+      <td style="border: 0; width: 28%;"><b>Functions</b></td>
+      <td style="border: 0;">are retyped by subtyping, with no term-level coercion</td>
+    </tr>
+    <tr>
+      <td style="border: 0;"><b>Church encodings</b></td>
+      <td style="border: 0;">escape by the same subtyping step</td>
+    </tr>
+    <tr>
+      <td style="border: 0;"><b>Native pairs, lists</b></td>
+      <td style="border: 0;">escape the same way, with their ordinary eliminators</td>
+    </tr>
+  </table>
+  <div class="fragment" data-fragment-index="1" style="margin-top: 4%;">
+  <b>An algorithm checks the type and infers the qualifier.</b>
+  </div>
+  <div class="fragment" data-fragment-index="1" style="display: flex; justify-content: space-around; margin-top: 2%; text-align: center;">
+    <div>
+      <p class="kw-group">checking a term</p>
+      <div style="font-size: 165%;">$t \tcheck T^{\,\tinfer\,\cao{q}}$</div>
+    </div>
+    <div>
+      <p class="kw-group">subtyping</p>
+      <div style="font-size: 165%;">$T^p \leqslant U^{\cao{q}}$</div>
+    </div>
+  </div>
+  <div class="fragment" data-fragment-index="1" style="margin-top: 3%;">
+  <b>Sound and decidable, mechanized in Lean 4.</b>
+  <span class="cite">&rarr; PLDI'26</span>
+  </div>
+</section>

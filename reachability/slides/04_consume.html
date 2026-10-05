@@ -1,0 +1,129 @@
+<section>
+  <div class="ext-grid">
+    <span class="chip">reachability types</span>
+    <span class="conn"></span>
+    <span class="chip ext here">effects</span>
+    <span></span>
+    <span class="mid">
+      <span class="chip ext">arenas &amp; scopes</span>
+      <span class="note">(talk on Wednesday)</span>
+    </span>
+    <span></span>
+  </div>
+  <div class="story-code"><pre><code class="hljs nohighlight" data-noescape><span class="lab">a := <span class="hljs-number">1</span><span class="k">used</span></span>; <span class="lab">free(a)<span class="k">killed</span></span></code></pre></div>
+</section>
+
+
+<section>
+  <h2>Effects: The Use&#8211;Mention Distinction</h2>
+  <div style="margin-top: 2%;">
+  <b>Reachability records what a term mentions; effects record what it uses.</b>
+  </div>
+  <pre style="margin-top: 3%;"><code data-trim>
+  val p = new Ref(0)          //: Ref[Int]??~{p}??
+  val q = p                   //: Ref[Int]??~{q}??
+  def later() = q := !q + 1   //: (Unit -> Unit | {^^use^^: q})??~{q}??
+  </code></pre>
+  <div style="margin-top: 2%;">
+  <b>A function type carries its latent effect: what a call uses and kills.</b>
+  </div>
+  <pre class="fragment" data-fragment-index="1" style="margin-top: 2%;"><code data-trim>
+  free(p)                     //: Unit | {^^kill^^: p}
+  val k = later               // ok: effect ~0, mentions q only
+  !!later()!!                     // !!error:!! {^^use^^: q} after {^^kill^^: p}, q reaches p
+  </code></pre>
+  <div class="fragment" data-fragment-index="1" style="margin-top: 2%;">
+  <b>Mentioning a killed resource is allowed; using it is not.</b>
+  </div>
+  <div class="fragment" data-fragment-index="1" style="margin-top: 4%;">
+  <b>Yuyan Bao's talk on Monday (OOPSLA'26) compares type, ability, and effect systems.</b>
+  </div>
+</section>
+
+
+<section>
+  <h2>Capture Is Not Consumption</h2>
+  <pre style="margin-top: 3%;"><code data-trim>
+  val ctr = counter(0)        // `a counter, with freeze in place of decr`
+  val (incr, freeze) = ctr
+      //: incr   : (Unit -> Unit | {^^use^^: ctr})??~{ctr}??
+      //: freeze : (Unit -> Int  | {^^use^^: ctr; ^^kill^^: ctr})??~{ctr}??
+  </code></pre>
+  <div style="margin-top: 2%;">
+  <b>Each closure carries its own latent effect on the shared cell.</b>
+  </div>
+  <div style="display: grid; grid-template-columns: 41% 56%; column-gap: 3%; margin-top: 2%;">
+    <p class="kw-group fragment" data-fragment-index="1">with effects</p>
+    <p class="kw-group fragment" data-fragment-index="2">in Rust</p>
+    <div class="fragment" data-fragment-index="1">
+      <pre style="margin: 0;"><code data-trim>
+  incr(); freeze()  // ok
+  !!incr()!!            // !!error:!! killed
+      </code></pre>
+    </div>
+    <div class="fragment" data-fragment-index="2">
+      <pre style="margin: 0;"><code class="language-rust" data-trim>
+  let c = Box::new(n);
+  let freeze = || { let v = *c; drop(c); v };
+  let incr = !!|| *c += 1!!;   // !!error:!! c was moved
+      </code></pre>
+    </div>
+    <div class="fragment" data-fragment-index="1" style="margin-top: .5em; text-wrap: balance;"><b>The effect happens at the call, not at the capture.</b></div>
+    <div class="fragment" data-fragment-index="2" style="margin-top: .5em; text-wrap: balance;"><b>Capture is the transfer, so <code>incr</code> is rejected before anything runs.</b></div>
+  </div>
+</section>
+
+
+<section>
+  <h2>Move: Ownership Transfer</h2>
+  <div style="width: 59%; display: inline-block; vertical-align: top; margin-top: 2%;">
+  <pre class="grow"><code data-trim data-line-numbers="1-2|1-3|1-5" data-fragment-index="1">
+  val r = new Ref(7)  //: Ref[Int]??~{r}??
+  val d = r           //: Ref[Int]??~{d}?? &lt;: Ref[Int]??~{r}??
+  val s = move r      //: Ref[Int]??~{~*}??  `s owns it now`
+  s := 41             // ok
+  !!d := 5!!              // !!error:!! d reaches a moved r
+  </code></pre>
+  </div>
+  <div style="width: 39%; display: inline-block; vertical-align: top; text-align: center;">
+    <svg class="store-fig" viewBox="0 0 300 230" style="width: 78%; --k: 1.02;">
+      <defs>
+        <marker id="ah3" viewBox="0 0 10 10" refX="9" refY="5"
+                markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/>
+        </marker>
+      </defs>
+      <g class="fragment fade-out" data-fragment-index="1">
+        <rect class="ca" x="110" y="44" width="90" height="60"/>
+        <text class="nm" x="155" y="160">r</text>
+        <text class="nm" x="215" y="160">d</text>
+        <path class="arr" d="M155,136 L155,108" marker-end="url(#ah3)"/>
+        <path class="arr" d="M205,151 L167,151" marker-end="url(#ah3)"/>
+      </g>
+      <g class="fragment" data-fragment-index="1">
+        <rect class="cg" x="110" y="44" width="90" height="60"/>
+        <text class="pink" x="214" y="52" font-size="26">&#9830;</text>
+        <text class="nm dead" x="155" y="160">r</text>
+        <text class="nm dead" x="215" y="160">d</text>
+        <path class="arr dead" d="M155,136 L155,108" marker-end="url(#ah3)"/>
+        <path class="arr dead" d="M205,151 L167,151" marker-end="url(#ah3)"/>
+        <text class="rednote" x="185" y="196">r, d disabled</text>
+        <text class="nm" x="50" y="160">s</text>
+        <path class="arrnew" d="M50,136 C50,100 70,78 104,76" marker-end="url(#ah3)"/>
+        <text class="note" x="155" y="26">fresh, sole owner</text>
+      </g>
+      <text x="155" y="82">7</text>
+    </svg>
+  </div>
+  <div class="fragment" data-fragment-index="1" style="margin-top: 1%;">
+  <b>Move kills the old names and hands the resource back fresh.</b>
+  </div>
+  <div class="fragment" data-fragment-index="3" style="margin-top: 2%; text-align: center; font-size: 135%;">
+  $\dfrac{\G^{\flt} \ts t : \TRef{T^{\cao q}}^{\,\cao p} \;\; \varepsilon}
+          {\G^{\flt} \ts \textsf{move}~t : \TRef{T^{\cao q}}^{\,\cao\qfresh} \;\; \varepsilon \rhd \{{\ceff\textsf{use}}{:}\,{\cao p};\ {\ceff\textsf{kill}}{:}\,{\cao p}\}}
+    \;\; \rulefmt{t-move}$
+  </div>
+  <div class="fragment" data-fragment-index="3" style="margin-top: 2%;">
+  <b>The use effect forbids moving twice; the kill effect disables every name reaching <code>p</code>.</b>
+  </div>
+</section>

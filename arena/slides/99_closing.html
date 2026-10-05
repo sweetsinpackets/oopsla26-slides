@@ -1,0 +1,201 @@
+<section>
+  <h1 style="margin-top: 0;">When Lifetimes Liberate</h1>
+  <h4 style="color: gray; margin-top: -1%;">Arenas, statically tracked, in a higher-order language</h4>
+  <div style="margin-top: 5%; display: flex; align-items: center; gap: 3%;">
+    <div style="width: 20%; text-align: center;">
+      <img src="assets/qr-paper.svg" alt="QR code: doi.org/10.1145/3798254" style="width: 86%; margin: 0;">
+      <div class="smaller" style="line-height: 1.25;">Paper<br>(open access)</div>
+    </div>
+    <div style="width: 20%; text-align: center;">
+      <img src="assets/qr-rocq.svg" alt="QR code: github.com/tiarkrompf/reachability" style="width: 86%; margin: 0;">
+      <div class="smaller" style="line-height: 1.25;">Rocq proofs<br>(GitHub)</div>
+    </div>
+    <div style="width: 54%; padding-left: 2%;">
+      <div><b>OOPSLA 2026</b></div>
+      <div class="smaller">extended version: <code>arxiv.org/abs/2509.04253</code></div>
+      <div style="margin-top: 6%;">
+        <span class="newtag" style="font-size: 100%;">I am seeking academic and industry positions.</span>
+        <div class="smaller">Happy to talk this week, in person or by email.</div>
+      </div>
+    </div>
+  </div>
+  <blockquote style="margin-top: 2%; width: 66%;">
+    Thank you! Questions?
+  </blockquote>
+  <div class="refs" style="width: 100%;">
+    <img src="assets/PU-V-Full-RGB.svg" height="90em">
+    <img src="assets/purpl-banner.jpg" height="90em">
+    <img src="assets/augusta-logo.png" height="90em">
+    <span style="display: inline-block; width: 22%;"></span>
+    <img src="assets/artifacts_available_dl.jpg" height="80em">
+    <img src="assets/artifacts_evaluated_functional_dl.jpg" height="80em">
+    <img src="assets/artifacts_evaluated_reusable_dl.jpg" height="80em">
+  </div>
+</section>
+
+
+
+<section data-visibility="uncounted">
+  <h2>Backup: How This Compares</h2>
+  <table class="score" style="margin-top: 2%;">
+    <thead>
+      <tr>
+        <th style="width: 30%;"></th>
+        <th>Regions<br><span class="cite">lexical</span></th>
+        <th>Dynamic<br>Arenas</th>
+        <th>Ownership<br><span class="cite">Rust</span></th>
+        <th>GC / RC</th>
+        <th class="ours">This<br>Work</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>bulk deallocation, guaranteed</td>
+        <td class="yes">&#10003;</td><td class="yes">&#10003;</td>
+        <td class="yes">&#10003;</td><td class="no">&mdash;</td>
+        <td class="ours yes">&#10003;</td>
+      </tr>
+      <tr>
+        <td>non-lexical, escaping</td>
+        <td class="no">&mdash;</td><td class="yes">&#10003;</td>
+        <td class="yes">&#10003;</td><td class="yes">&#10003;</td>
+        <td class="ours yes">&#10003;</td>
+      </tr>
+      <tr>
+        <td>mutable, cyclic sharing</td>
+        <td class="yes">&#10003;</td><td class="yes">&#10003;</td>
+        <td class="no">&mdash;</td><td class="no">&mdash;</td>
+        <td class="ours yes">&#10003;</td>
+      </tr>
+      <tr>
+        <td>higher-order functions</td>
+        <td class="yes">&#10003;</td><td class="no">&mdash;</td>
+        <td class="yes">&#10003;</td><td class="yes">&#10003;</td>
+        <td class="ours yes">&#10003;</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="refs">
+    Regions: Tofte &amp; Talpin; MLKit; Cyclone. &nbsp; Dynamic arenas: Hicks et al. IWMM'04. &nbsp;
+    Region + ownership: Reggio (Verona). &nbsp; This is Table 1 of the paper.
+  </p>
+</section>
+
+
+<section data-visibility="uncounted">
+  <h2>Backup: Cycles Deallocated in Bulk</h2>
+  <p class="delta">the cycle inside one arena, now in a scoped arena</p>
+  <div style="width: 56%; display: inline-block; vertical-align: top;">
+  <pre class="grow"><code data-trim data-line-numbers="1-6|1-7" data-fragment-index="1">
+  {
+    val a = new Ref(()) !!scoped!!
+    val c1, c2, c3 = new Ref(f) at a
+    c1 := (x: Int) => (!c2)(x)
+    c2 := (x: Int) => (!c3)(x)
+    c3 := (x: Int) => (!c1)(x)
+  }   // !!{a, c1, c2, c3} deallocated together!!
+  </code></pre>
+  <div class="fragment" data-fragment-index="2" style="margin-top: 3%;">
+  <b>Reference counting alone never reclaims this.</b>
+  <span class="gloss">no count in a cycle ever reaches zero</span>
+  </div>
+  <div class="fragment" data-fragment-index="2" style="margin-top: 2%;">
+  <b>A scoped arena deallocates all of it.</b>
+  <span class="gloss">and no value that outlives the block refers into it</span>
+  </div>
+  </div>
+  <div style="width: 40%; display: inline-block; vertical-align: top;">
+  <svg class="store-fig" viewBox="0 0 340 300" style="width: 80%;">
+    <defs><marker id="sc2" orient="auto" markerWidth="10" markerHeight="10" refX="6" refY="3">
+      <path d="M0,0 L7,3 L0,6 z" fill="context-stroke"/></marker></defs>
+    <g class="fragment fade-out" data-fragment-index="1">
+      <rect x="55" y="36" width="150" height="216" rx="12"
+            fill="none" stroke="#a05a00" stroke-width="3"/>
+      <rect class="ca" x="70" y="48"  width="120" height="48"/><text x="130" y="80">a</text>
+      <rect class="ca" x="70" y="96" width="120" height="48"/><text x="130" y="128">c1</text>
+      <rect class="ca" x="70" y="144" width="120" height="48"/><text x="130" y="176">c2</text>
+      <rect class="ca" x="70" y="192" width="120" height="48"/><text x="130" y="224">c3</text>
+      <path class="arrnew" d="M191,108 C262,108 262,160 208,160" marker-end="url(#sc2)"/>
+      <path class="arrnew" d="M191,178 C258,178 258,208 208,208" marker-end="url(#sc2)"/>
+      <path class="arrnew" d="M191,228 C328,228 328,132 208,132" marker-end="url(#sc2)"/>
+    </g>
+    <g class="fragment" data-fragment-index="1">
+      <rect class="deadbox" x="55" y="36" width="150" height="216" rx="12"/>
+      <g class="dead">
+        <rect class="ca" x="70" y="48"  width="120" height="48"/><text x="130" y="80">a</text>
+        <rect class="ca" x="70" y="96" width="120" height="48"/><text x="130" y="128">c1</text>
+        <rect class="ca" x="70" y="144" width="120" height="48"/><text x="130" y="176">c2</text>
+        <rect class="ca" x="70" y="192" width="120" height="48"/><text x="130" y="224">c3</text>
+        <path class="arrnew" d="M191,108 C262,108 262,160 208,160" marker-end="url(#sc2)"/>
+        <path class="arrnew" d="M191,178 C258,178 258,208 208,208" marker-end="url(#sc2)"/>
+        <path class="arrnew" d="M191,228 C328,228 328,132 208,132" marker-end="url(#sc2)"/>
+      </g>
+      <text class="rednote" x="130" y="284">&#9986; deallocated at }</text>
+    </g>
+  </svg>
+  </div>
+</section>
+
+
+<section data-visibility="uncounted">
+  <h2>Backup: Why Coarse Tracking Is Still Sound</h2>
+  <div style="margin-top: 3%;">
+  <b>Coarseness never crosses an arena boundary.</b>
+  <span style="color: gray;">two arenas are two locations, and disjointness
+  between them is exactly as before</span>
+  </div>
+  <div class="fragment" data-fragment-index="1" style="margin-top: 3%;">
+  <b>Within an arena, there is nothing to lose.</b>
+  <span style="color: gray;">members share a lifetime by construction, so
+  per-cell lifetime information would say nothing new</span>
+  </div>
+  <div class="fragment" data-fragment-index="1" style="margin-top: 3%;">
+  <b>What you do give up:</b> separation <em>inside</em> one arena.
+  <span style="color: gray;">two cells in the same arena never look disjoint,
+  so put things you want to parallelize in different arenas</span>
+  </div>
+</section>
+
+
+<section data-visibility="uncounted">
+  <h2>Backup: Where This Sits</h2>
+  <div>
+    <div class="half">
+      <h4>Language Design</h4>
+      Qualifiers <span class="cite">[OOPSLA'21]</span> <br>
+      Polymorphism <span class="cite">[POPL'24]</span>
+    </div>
+    <div class="half">
+      <h4>Store Topology</h4>
+      Cyclic references <span class="cite">[OOPSLA'25]</span> <br>
+      <b>Arenas with scopes</b> <span class="cite">[OOPSLA'26]</span>
+      <span class="newtag">this work</span>
+    </div>
+  </div>
+  <div style="margin-top: 5%;">
+    <div class="half">
+      <h4>Algorithm &amp; Implementation</h4>
+      Bidirectional typing, avoidance <span class="cite">[PLDI'26]</span>
+    </div>
+    <div class="half">
+      <h4>Effect Reasoning</h4>
+      Graph IR compiler <span class="cite">[OOPSLA'23]</span> <br>
+      Typestate <span class="cite">[PLDI'26]</span>
+    </div>
+  </div>
+</section>
+
+
+<section data-visibility="uncounted">
+  <h2>Backup: Limitations</h2>
+  <ul class="smaller">
+    <li><b>Flow-insensitive.</b> Deallocation is guaranteed for scoped arenas
+      at scope exit; not for arbitrary arenas, and not mid-scope.</li>
+    <li><b>Granularity is coarse by design.</b> No separation between two
+      cells of one arena.</li>
+    <li><b>Escaping requires term-level coercions</b> in this calculus; doing it
+      by subtyping is the PLDI'26 paper.</li>
+    <li><b>No object encoding yet.</b> Cyclic store structures, yes; full
+      cyclic data structures, future work.</li>
+  </ul>
+</section>
