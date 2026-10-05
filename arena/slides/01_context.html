@@ -154,9 +154,9 @@
   <div style="margin-top: 1.5%;">
   <b>A value of type <code class="hl2">T??~{q}??</code> may reach the resources in <code class="hl2">??q??</code>, including via aliases and closures.</b>
   </div>
-  <div style="margin-top: 2.5%;">
+  <div style="margin-top: 1%;">
   <div style="width: 59%; display: inline-block; vertical-align: top;">
-  <pre class="grow" style="margin-top: 0;"><code data-trim data-line-numbers="1|1-2|1-3" data-fragment-index="1">
+  <pre style="margin-top: 0;"><code data-trim>
   val r = new Ref(8)  //: Ref[Int]??~{r}??
   val x = r           //: Ref[Int]??~{x}?? <: Ref[Int]??~{r}??
   val f = () => !r    //: (() -> Int)??~{r}??
@@ -170,15 +170,11 @@
     <text x="170" y="44">8</text>
     <text class="loc" x="170" y="130">r</text>
     <path class="arr" d="M170,106 L170,72" marker-end="url(#rt1)"/>
+    <text class="loc" x="60" y="130">x</text>
+    <path class="arr" d="M78,120 L150,120" marker-end="url(#rt1)"/>
+    <text class="loc" x="280" y="130">f</text>
+    <path class="arr" d="M280,104 C280,62 260,42 232,38" marker-end="url(#rt1)"/>
     <g class="fragment" data-fragment-index="1">
-      <text class="loc" x="60" y="130">x</text>
-      <path class="arr" d="M78,120 L150,120" marker-end="url(#rt1)"/>
-    </g>
-    <g class="fragment" data-fragment-index="2">
-      <text class="loc" x="280" y="130">f</text>
-      <path class="arr" d="M280,104 C280,62 260,42 232,38" marker-end="url(#rt1)"/>
-    </g>
-    <g class="fragment" data-fragment-index="3">
       <rect class="cb" x="350" y="10" width="90" height="54"/>
       <text x="395" y="44">9</text>
       <text class="loc" x="395" y="130">y</text>
@@ -187,17 +183,36 @@
   </svg>
   </div>
   </div>
-  <div class="fragment" data-fragment-index="3" style="margin-top: 2.5%;">
-  <b>Qualifiers enable reasoning about separation and controlled sharing.</b>
+  <div class="fragment" data-fragment-index="1" style="margin-top: 1%;">
+  <b>Qualifiers enable reasoning about controlled sharing and separation.</b>
   <div style="margin-top: 1%;">
-  <div style="width: 59%; display: inline-block; vertical-align: top;">
+  <div style="width: 70%; display: inline-block; vertical-align: top;">
   <pre style="margin-top: 0;"><code data-trim>
-  val y = new Ref(9)     //: Ref[Int]??~{y}??
-  par { x := 1 } { !r }  // !!error:!! ??{x}??, ??{r}?? overlap
-  par { x := 1 } { !y }  // ok: disjoint
+  val y = new Ref(9)      //: Ref[Int]??~{y}??
+  def g(z: Ref[Int]??~{~*r}??) = !r + !y + !z
+                          //: ((z: Ref[Int]??~{~*r}??) -> Int)??~{r, y}??
+  g(x)                    // ok: sharing r is allowed
+  g(!!y!!)                    // !!error:!! g already observes y
   </code></pre>
   </div>
+  <div style="width: 28%; display: inline-block; vertical-align: middle; text-align: center;">
+  <svg class="store-fig" viewBox="0 0 300 146" style="--loc-size: 29.6px; width: 100%;">
+    <defs><marker id="rt2" orient="auto" markerWidth="10" markerHeight="10" refX="6" refY="3">
+      <path d="M0,0 L7,3 L0,6 z" fill="context-stroke"/></marker></defs>
+    <rect class="ca" x="14" y="10" width="76" height="44"/>
+    <text x="52" y="41">8</text>
+    <rect class="cb" x="14" y="96" width="76" height="44"/>
+    <text x="52" y="127">9</text>
+    <text class="loc" x="250" y="42">f</text>
+    <text class="loc" x="250" y="128">g</text>
+    <path class="arr" d="M236,32 L98,32"   marker-end="url(#rt2)"/>
+    <path class="arr" d="M236,108 L98,46"  marker-end="url(#rt2)"/>
+    <path class="arr" d="M236,118 L98,118" marker-end="url(#rt2)"/>
+    <text class="note" x="192" y="57">shared</text>
+  </svg>
   </div>
+  </div>
+  <div style="margin-top: .2%;"><b>The reachability graph is a DAG.</b></div>
   </div>
   <p class="refs">
     Reachability types: Bao et al. OOPSLA'21 &middot; Wei et al. POPL'24 &middot; Deng et al. OOPSLA'25.
