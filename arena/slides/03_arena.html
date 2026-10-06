@@ -1,6 +1,6 @@
 
 <section>
-  <h2>Our Contribution: Arenas and Flexible Lifetimes</h2>
+  <h2>This Work: Three Allocation Forms</h2>
   <p class="delta"><code class="hl2">at</code> coallocates into an arena; <code class="hl2">scoped</code> ties its lifetime to a lexical scope</p>
   <div class="story-code forms">
   <table class="formtab hljs">
@@ -70,13 +70,13 @@
 
 <section>
   <h2><span class="kw-t">Arenas</span>: Cycles Inside One Arena</h2>
-  <div style="width: 58%; display: inline-block; vertical-align: top;">
+  <div style="width: 60%; display: inline-block; vertical-align: top;">
   <pre class="grow"><code data-trim data-line-numbers="1-2|1-5" data-fragment-index="1">
-  val a  = new Ref(())              //: Ref[Unit]??~{a}??
-  val c1, c2, c3 = new Ref(f) at a  //: Ref[..]!!~{a}!!
-  c1 := (x: Int) => (!c2)(x)        // ok
-  c2 := (x: Int) => (!c3)(x)        // ok
-  c3 := (x: Int) => (!c1)(x)        // ok
+  val a  = new Ref(())               //: Ref[Unit]??~{a}??
+  val c1, c2, c3 = new Ref(..) at a  //: Ref[..]!!~{a}!!
+  c1 := (x: Int) => (!c2)(x)         // ok
+  c2 := (x: Int) => (!c3)(x)         // ok
+  c3 := (x: Int) => (!c1)(x)         // ok
   </code></pre>
   <div class="fragment" data-fragment-index="1" style="margin-top: 3%;">
   <b>Cells reach each other via the arena <code class="hl2">??{a}??</code>.</b>
@@ -87,8 +87,8 @@
   <span class="gloss">so arbitrary store structures are allowed within it</span>
   </div>
   </div>
-  <div style="width: 38%; display: inline-block; vertical-align: top;">
-  <svg class="store-fig" viewBox="0 0 340 320" style="width: 92%; --k: .83;">
+  <div style="width: 36%; display: inline-block; vertical-align: top;">
+  <svg class="store-fig" viewBox="0 0 340 320" style="width: 97%; --k: .83;">
     <defs><marker id="bx3" orient="auto" markerWidth="10" markerHeight="10" refX="6" refY="3">
       <path d="M0,0 L7,3 L0,6 z" fill="context-stroke"/></marker></defs>
     <text class="rednote" x="130" y="26" font-style="italic">&#8467;</text>
@@ -120,7 +120,7 @@
   <h2><span class="kw-t">Arenas</span>: Cycles Across Arenas</h2>
   <div style="width: 57%; display: inline-block; vertical-align: top; margin-top: 2%;">
   <pre class="grow"><code data-trim data-line-numbers="1-3|1-4" data-fragment-index="1">
-  val a = new Ref(...)    //: Top??~{a}??
+  val a = new Ref(..)     //: Top??~{a}??
   val b = new Ref(a)      //: Ref[Top??~{a}??]??~{b}??
   val c = new Ref(b) at a //: Ref[Top??~{b}??]??~{c}?? <: Top??~{a}??
   b := c                  // ok: closes the cycle
@@ -305,7 +305,7 @@
 </section>
 
 <section>
-  <h2><span class="kw-t">Lifetimes</span>: The Non-Escaping Condition</h2>
+  <h2><span class="kw-t">Lifetimes</span>: Non-Escaping by Reachability</h2>
   <div style="margin-top: 1%;">
   <b>The block&#8217;s result must not reach the scoped arena <code class="hl2">a</code>, directly or via store lookup.</b>
   </div>
@@ -425,7 +425,7 @@
     <div class="half" style="width: 44%;">
       <p class="kw-group">as written</p>
       <pre><code data-trim>
-  f(new Ref(v) !!scoped!!)
+  f(new Ref(..) !!scoped!!)
       </code></pre>
       <div class="fragment" data-fragment-index="1" style="margin-top: 6%;">
       <b>lifted out of the call &#10230;</b>
@@ -435,7 +435,7 @@
       <p class="kw-group">as it is checked</p>
       <pre><code data-trim>
   {
-    val x = new Ref(v) !!scoped!!
+    val x = new Ref(..) !!scoped!!
     f(x)            // `f needs no annotation`
   }                 // !!x deallocated here!!
       </code></pre>

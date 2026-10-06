@@ -3,8 +3,8 @@
   <div style="width: 63%; display: inline-block; vertical-align: top; margin-top: 2.5%;">
   <pre class="grow"><code data-trim data-line-numbers="1-4|1-5" data-fragment-index="1">
   val a = Arena()
-  val x = a.alloc(...)
-  val y = a.alloc(...)
+  val x = a.alloc(..)
+  val y = a.alloc(..)
   ...
   a.dealloc()  // x, y, ...: deallocated together
   </code></pre>
@@ -44,8 +44,8 @@
   <pre><code data-trim>
   {                   // one HTTP request
     val a    = Arena()
-    val hdr  = a.alloc(...)
-    val body = a.alloc(...)
+    val hdr  = a.alloc(..)
+    val body = a.alloc(..)
     respond(hdr, body)
   }                   // !!deallocated here!!
   </code></pre>
@@ -108,19 +108,19 @@
 </section>
 
 <section>
-  <h2>Our Goal</h2>
+  <h2>This Work</h2>
   <div style="margin-top: 1.5%;">
-  <b>Classic regions tie lifetime to grouping: a region&rsquo;s lifetime is its lexical scope.</b>
+  <b>A classic region groups resources, and its lifetime is its lexical scope.</b>
   </div>
   <div style="margin-top: 3%;">
   <b>We decouple grouping from lifetime:</b>
   <table class="goal-list">
     <tr>
-      <td><b>Arenas</b></td>
+      <td><b><span class="kw-t">Arenas</span></b></td>
       <td>group resources, even those that outlive their scope</td>
     </tr>
     <tr>
-      <td><b>Flexible lifetimes</b></td>
+      <td><b>Flexible <span class="kw-t">lifetimes</span></b></td>
       <td>lexical or non-lexical, even for a single reference</td>
     </tr>
   </table>
@@ -133,7 +133,7 @@
       <td>the same <code class="hl2">Ref[T]</code></td>
     </tr>
     <tr>
-      <td><b>Higher-order code</b></td>
+      <td><b><span class="kw-t">Higher-order</span> code</b></td>
       <td>closures, aliases, and shared mutable state</td>
     </tr>
     <tr>
@@ -143,8 +143,7 @@
   </table>
   </div>
   <div class="fragment" data-fragment-index="2" style="margin-top: 3.5%;">
-  <span class="kw-t" style="font-size: 130%;">Reachability Types</span>
-  <b>already achieve part of this goal.</b>
+  <b><span class="kw-t">Reachability Types</span> already achieve part of this.</b>
   </div>
 </section>
 <section>
@@ -160,8 +159,8 @@
   val f = () => !r    //: (() -> Int)??~{r}??
   </code></pre>
   </div>
-  <div style="width: 39%; display: inline-block; vertical-align: top;">
-  <svg class="store-fig" viewBox="0 0 460 140" style="--loc-size: 29.6px; width: 100%;">
+  <div style="width: 39%; display: inline-block; vertical-align: top; text-align: center;">
+  <svg class="store-fig" viewBox="40 0 260 140" style="--loc-size: 29.6px; width: 56.5%;">
     <defs><marker id="rt1" orient="auto" markerWidth="10" markerHeight="10" refX="6" refY="3">
       <path d="M0,0 L7,3 L0,6 z" fill="context-stroke"/></marker></defs>
     <rect class="ca" x="118" y="10" width="104" height="54"/>
@@ -172,12 +171,6 @@
     <path class="arr" d="M78,120 L150,120" marker-end="url(#rt1)"/>
     <text class="loc" x="280" y="130">f</text>
     <path class="arr" d="M280,104 C280,62 260,42 232,38" marker-end="url(#rt1)"/>
-    <g class="fragment" data-fragment-index="1">
-      <rect class="cb" x="350" y="10" width="90" height="54"/>
-      <text x="395" y="44">9</text>
-      <text class="loc" x="395" y="130">y</text>
-      <path class="arr" d="M395,106 L395,72" marker-end="url(#rt1)"/>
-    </g>
   </svg>
   </div>
   </div>
@@ -194,23 +187,24 @@
   </code></pre>
   </div>
   <div style="width: 28%; display: inline-block; vertical-align: middle; text-align: center;">
-  <svg class="store-fig" viewBox="0 0 300 146" style="--loc-size: 29.6px; width: 100%;">
+  <svg class="store-fig" viewBox="0 0 300 190" style="--loc-size: 29.6px; width: 100%;">
     <defs><marker id="rt2" orient="auto" markerWidth="10" markerHeight="10" refX="6" refY="3">
       <path d="M0,0 L7,3 L0,6 z" fill="context-stroke"/></marker></defs>
-    <rect class="ca" x="14" y="10" width="76" height="44"/>
-    <text x="52" y="41">8</text>
-    <rect class="cb" x="14" y="96" width="76" height="44"/>
-    <text x="52" y="127">9</text>
-    <text class="loc" x="250" y="42">f</text>
-    <text class="loc" x="250" y="128">g</text>
-    <path class="arr" d="M236,32 L98,32"   marker-end="url(#rt2)"/>
-    <path class="arr" d="M236,108 L98,46"  marker-end="url(#rt2)"/>
-    <path class="arr" d="M236,118 L98,118" marker-end="url(#rt2)"/>
-    <text class="note" x="192" y="57">shared</text>
+    <rect class="ca" x="14" y="20" width="76" height="44"/>
+    <text x="52" y="51">8</text>
+    <rect class="cb" x="14" y="136" width="76" height="44"/>
+    <text x="52" y="167">9</text>
+    <text class="loc" x="216" y="40" style="text-anchor: start;">x, r</text>
+    <path class="arr" d="M208,30 L98,30"   marker-end="url(#rt2)"/>
+    <text class="loc" x="216" y="180" style="text-anchor: start;">y</text>
+    <path class="arr" d="M208,170 L98,170" marker-end="url(#rt2)"/>
+    <text class="loc" x="262" y="112">g</text>
+    <path class="arr" d="M248,96 L98,56"   marker-end="url(#rt2)"/>
+    <path class="arr" d="M248,110 L98,146" marker-end="url(#rt2)"/>
+    <text class="note" x="168" y="58">shared</text>
   </svg>
   </div>
   </div>
-  <div style="margin-top: .2%;"><b>The reachability graph is a DAG.</b></div>
   </div>
   <p class="refs">
     Reachability types: Bao et al. OOPSLA'21 &middot; Wei et al. POPL'24 &middot; Deng et al. OOPSLA'25.

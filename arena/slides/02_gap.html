@@ -18,8 +18,8 @@
   <div class="fragment" data-fragment-index="2" style="margin-top: .5%;">
   <div style="width: 70%; display: inline-block; vertical-align: top;">
   <pre><code data-trim>
-  val c1 = new Ref(f)         //: Ref[(Int -> Int)??~{q1}??]??~{c1}??
-  val c2 = new Ref(f)         //: Ref[(Int -> Int)??~{q2}??]??~{c2}??
+  val c1 = new Ref(..)        //: Ref[(Int -> Int)??~{q1}??]??~{c1}??
+  val c2 = new Ref(..)        //: Ref[(Int -> Int)??~{q2}??]??~{c2}??
 
   c2 := (x: Int) => (!c1)(x)  // ok: ??q2?? may mention ??c1??
   c1 := (x: Int) => (!c2)(x)  // !!error:!! ??q1?? cannot mention ??c2??

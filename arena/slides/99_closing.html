@@ -86,7 +86,7 @@
   <pre class="grow"><code data-trim data-line-numbers="1-6|1-7" data-fragment-index="1">
   {
     val a = new Ref(()) !!scoped!!
-    val c1, c2, c3 = new Ref(f) at a
+    val c1, c2, c3 = new Ref(..) at a
     c1 := (x: Int) => (!c2)(x)
     c2 := (x: Int) => (!c3)(x)
     c3 := (x: Int) => (!c1)(x)
