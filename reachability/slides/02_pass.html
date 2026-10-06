@@ -4,7 +4,6 @@
 f(<span class="lab"><span class="hljs-keyword">new</span> <span class="hljs-type">Ref</span>(<span class="hljs-number">0</span>)<span class="k">fresh</span></span>);  f(<span class="lab">a<span class="k">shared</span></span>);  f(<span class="lab">b<span class="k">separate</span></span>)</code></pre></div>
 </section>
 
-
 <section>
   <h2>Functions and Contextual Freshness</h2>
   <div style="margin-top: 2%;">
@@ -27,7 +26,6 @@ f(<span class="lab"><span class="hljs-keyword">new</span> <span class="hljs-type
   f(!!a!!)   // !!error:!! f already observes a
   </code></pre>
 </section>
-
 
 <section>
   <h2>Controlled Sharing</h2>
@@ -71,7 +69,6 @@ f(<span class="lab"><span class="hljs-keyword">new</span> <span class="hljs-type
   <b>Everything else the argument may reach must stay contextually fresh.</b>
   </div>
 </section>
-
 
 <section>
   <h2>Lightweight Reachability Polymorphism</h2>

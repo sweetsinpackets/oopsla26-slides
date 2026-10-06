@@ -3,7 +3,6 @@
   <div class="story-code"><pre><code class="hljs nohighlight" data-noescape>{ <span class="hljs-keyword">val</span> a = <span class="hljs-keyword">new</span> <span class="hljs-type">Ref</span>(<span class="hljs-number">0</span>); <span class="lab">() =&gt; a<span class="k">returned</span></span> }</code></pre></div>
 </section>
 
-
 <section>
   <h2>Escaping Closures and Avoidance</h2>
   <div style="margin-top: 2%;">
@@ -25,7 +24,6 @@
   par { fn() := 1 } { fn() := 2 }    // !!unsound!!: the same cell twice
   </code></pre>
 </section>
-
 
 <section>
   <h2>Self-References</h2>
@@ -80,7 +78,6 @@
     </svg>
   </div>
 </section>
-
 
 <section>
   <h2>Escaping Pairs: Transparent to Opaque</h2>
@@ -148,7 +145,6 @@
   </div>
 </section>
 
-
 <section>
   <h2>Avoidance by Subtyping</h2>
   <div style="margin-top: 3%;">
@@ -181,7 +177,6 @@
   <code class="hl2">??~0??</code>, nested ones use the outermost self-reference</span>
   </div>
 </section>
-
 
 <section>
   <h2>What Avoidance by Subtyping Brings</h2>

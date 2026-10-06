@@ -33,8 +33,6 @@
   </div>
 </section>
 
-
-
 <section data-visibility="uncounted">
   <h2>Backup: How This Compares</h2>
   <table class="score" style="margin-top: 2%;">
@@ -80,7 +78,6 @@
     Region + ownership: Reggio (Verona). &nbsp; This is Table 1 of the paper.
   </p>
 </section>
-
 
 <section data-visibility="uncounted">
   <h2>Backup: Cycles Deallocated in Bulk</h2>
@@ -136,66 +133,3 @@
   </div>
 </section>
 
-
-<section data-visibility="uncounted">
-  <h2>Backup: Why Coarse Tracking Is Still Sound</h2>
-  <div style="margin-top: 3%;">
-  <b>Coarseness never crosses an arena boundary.</b>
-  <span style="color: gray;">two arenas are two locations, and disjointness
-  between them is exactly as before</span>
-  </div>
-  <div class="fragment" data-fragment-index="1" style="margin-top: 3%;">
-  <b>Within an arena, there is nothing to lose.</b>
-  <span style="color: gray;">members share a lifetime by construction, so
-  per-cell lifetime information would say nothing new</span>
-  </div>
-  <div class="fragment" data-fragment-index="1" style="margin-top: 3%;">
-  <b>What you do give up:</b> separation <em>inside</em> one arena.
-  <span style="color: gray;">two cells in the same arena never look disjoint,
-  so put things you want to parallelize in different arenas</span>
-  </div>
-</section>
-
-
-<section data-visibility="uncounted">
-  <h2>Backup: Where This Sits</h2>
-  <div>
-    <div class="half">
-      <h4>Language Design</h4>
-      Qualifiers <span class="cite">[OOPSLA'21]</span> <br>
-      Polymorphism <span class="cite">[POPL'24]</span>
-    </div>
-    <div class="half">
-      <h4>Store Topology</h4>
-      Cyclic references <span class="cite">[OOPSLA'25]</span> <br>
-      <b>Arenas with scopes</b> <span class="cite">[OOPSLA'26]</span>
-      <span class="newtag">this work</span>
-    </div>
-  </div>
-  <div style="margin-top: 5%;">
-    <div class="half">
-      <h4>Algorithm &amp; Implementation</h4>
-      Bidirectional typing, avoidance <span class="cite">[PLDI'26]</span>
-    </div>
-    <div class="half">
-      <h4>Effect Reasoning</h4>
-      Graph IR compiler <span class="cite">[OOPSLA'23]</span> <br>
-      Typestate <span class="cite">[PLDI'26]</span>
-    </div>
-  </div>
-</section>
-
-
-<section data-visibility="uncounted">
-  <h2>Backup: Limitations</h2>
-  <ul class="smaller">
-    <li><b>Flow-insensitive.</b> Deallocation is guaranteed for scoped arenas
-      at scope exit; not for arbitrary arenas, and not mid-scope.</li>
-    <li><b>Granularity is coarse by design.</b> No separation between two
-      cells of one arena.</li>
-    <li><b>Escaping requires term-level coercions</b> in this calculus; doing it
-      by subtyping is the PLDI'26 paper.</li>
-    <li><b>No object encoding yet.</b> Cyclic store structures, yes; full
-      cyclic data structures, future work.</li>
-  </ul>
-</section>

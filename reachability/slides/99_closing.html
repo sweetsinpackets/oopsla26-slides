@@ -64,7 +64,6 @@
   </div>
 </section>
 
-
 <section>
   <h2>Conclusion</h2>
   <div style="margin-top: 1%;">
@@ -103,50 +102,6 @@
     Thank you. Questions?
   </div>
 </section>
-
-
-<section data-visibility="uncounted">
-  <h2>Backup: Related Approaches</h2>
-  <p class="delta">neighbors, by what each one takes as primitive</p>
-  <table class="smaller related" style="width: 100%; margin-top: 1%; line-height: 1.2;">
-    <tr>
-      <td style="border: 0; width: 27%;"><b>Ownership, uniqueness</b></td>
-      <td style="border: 0; width: 41%;">access is primitive; sharing is re&#8209;admitted by borrowing</td>
-      <td style="border: 0; color: #555; font-size: 85%;">Clarke, Potter &amp; Noble&nbsp;'98; Clarke &amp; Wrigstad&nbsp;'03; Rust</td>
-    </tr>
-    <tr>
-      <td style="border: 0; width: 27%;"><b>Reference capabilities, isolation</b></td>
-      <td style="border: 0; width: 41%;">isolation is primitive; mutable sharing stays inside a region</td>
-      <td style="border: 0; color: #555; font-size: 85%;">Pony&nbsp;'15; Milano, Turcotti &amp; Myers&nbsp;'22; Reggio: Arvidsson, &#8230;, Wrigstad&nbsp;'23</td>
-    </tr>
-    <tr>
-      <td style="border: 0; width: 27%;"><b>Linear, affine types</b></td>
-      <td style="border: 0; width: 41%;">multiplicity is primitive; aliasing is what they avoid</td>
-      <td style="border: 0; color: #555; font-size: 85%;">Wadler&nbsp;'90; Alms&nbsp;'11; Linear&nbsp;Haskell&nbsp;'18</td>
-    </tr>
-    <tr>
-      <td style="border: 0; width: 27%;"><b>Regions</b></td>
-      <td style="border: 0; width: 41%;">lifetime is primitive; membership is a static region name</td>
-      <td style="border: 0; color: #555; font-size: 85%;">Tofte &amp; Talpin&nbsp;'94; Cyclone&nbsp;'02</td>
-    </tr>
-    <tr>
-      <td style="border: 0; width: 27%;"><b>Capture types, second&#8209;class</b></td>
-      <td style="border: 0; width: 41%;">capability capture is primitive, tracked lexically</td>
-      <td style="border: 0; color: #555; font-size: 85%;">Osvald et&nbsp;al.&nbsp;'16; Boruch&#8209;Gruszecki et&nbsp;al.&nbsp;'23</td>
-    </tr>
-    <tr>
-      <td style="border: 0; width: 27%;"><b>Separation logic</b></td>
-      <td style="border: 0; width: 41%;">disjointness is primitive, in the assertion language</td>
-      <td style="border: 0; color: #555; font-size: 85%;">O'Hearn, Reynolds &amp; Yang&nbsp;'01; Iris</td>
-    </tr>
-    <tr>
-      <td style="border: 0;"><b class="p-bao21">Reachability types</b></td>
-      <td style="border: 0;" colspan="2"><b>reachability is primitive;</b> separation, lifetime
-      and consumption are all derived from it</td>
-    </tr>
-  </table>
-</section>
-
 
 <section data-visibility="uncounted">
   <h2>Backup: the Systems Side by Side</h2>
@@ -207,24 +162,6 @@
   </table>
 </section>
 
-
-<section data-visibility="uncounted">
-  <h2>Backup: What Is Still Open</h2>
-  <div>
-    <ul>
-      <li><b>Composition with language features:</b> exceptions,
-        type operators ($\mathsf{F}_\omega$).</li>
-      <li class="fragment"><b>From calculus to language:</b> syntax, errors, modules;
-        how much qualifier should anyone write?</li>
-      <li class="fragment"><b>Reachability as analysis:</b> infer qualifiers for
-        existing code; optimize rather than reject.</li>
-      <li class="fragment"><b>The neighbors:</b> real translations, in both
-        directions.</li>
-    </ul>
-  </div>
-</section>
-
-
 <section data-visibility="uncounted">
   <h2>Backup: From Ownership to Reachability</h2>
   <p class="delta">two ways to make resource reasoning static</p>
@@ -255,7 +192,6 @@
   <b>The difference shows up in higher-order code.</b>
   </div>
 </section>
-
 
 <section data-visibility="uncounted">
   <h2>Backup: Objects Are Higher-Order</h2>
@@ -336,7 +272,6 @@
   </div>
 </section>
 
-
 <section data-visibility="uncounted">
   <h2>Backup: From Deep to Shallow References</h2>
   <p class="delta">how a reference accounts for what its content reaches</p>
@@ -401,31 +336,6 @@
   <b>The qualifier no longer grows with the content, so a cell may reach itself.</b>
   </div>
 </section>
-
-
-<section data-visibility="uncounted">
-  <h2>Backup: Cyclic References</h2>
-  <div style="margin-top: 4%; font-size: 120%; text-align: center;">
-  <b><code class="hl2">\uz.Ref[T??~{z}??]</code></b>
-  </div>
-  <div style="margin-top: 2%;">
-  A reference names itself in its own type.
-  </div>
-  <pre class="fragment" data-fragment-index="1" style="margin-top: 4%;"><code data-trim>
-  val c = new Ref((x: Int) => x)   //: \u!!z!!.Ref[(Int -> Int)!!~{z}!!]??~{c}??
-  def f(x: Int) = (!c)(x)          //: (Int -> Int)??~{c}??
-  c := f                           // ok: `f reaches c, which is the \u-bound` !!z!!
-  </code></pre>
-  <div class="fragment" data-fragment-index="1" style="margin-top: 3%;">
-  <b>Recursion through the store, with no built-in fixed point.</b>
-  <span class="cite">&rarr; OOPSLA'25</span>
-  </div>
-  <div class="fragment" data-fragment-index="1" style="margin-top: 2%; color: gray;">
-  <b>Limitation:</b> self-cycles only; multi-hop cycles need arenas
-  <span class="cite">&rarr; OOPSLA'26</span>
-  </div>
-</section>
-
 
 <section data-visibility="uncounted">
   <h2>Backup: Escaping Closures</h2>
@@ -496,7 +406,6 @@
   </div>
   </div>
 </section>
-
 
 <section data-visibility="uncounted">
   <h2>Backup: Avoidance: Removing a Name That Leaves Scope</h2>
