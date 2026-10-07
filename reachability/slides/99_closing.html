@@ -433,3 +433,109 @@
   par { fn() := 1 } { fn() := 2 }    // !!unsound!!: the same cell twice
   </code></pre>
 </section>
+
+<section data-visibility="uncounted">
+  <h2>Backup: Two Closures in Scope (Rust)</h2>
+  <div style="margin-top: 2%;">
+  <b>Functional encoding: the methods become closures over the object's state.</b>
+  </div>
+  <div style="display: flex; align-items: flex-start; margin-top: 3%;">
+    <div style="width: 60%;" class="r-stack">
+      <pre class="fragment fade-out" data-fragment-index="1" style="margin: 0;"><code class="language-rust" data-trim>
+  let mut c = 0;
+  let mut incr = || c += 1;
+  let mut decr = || c -= 1;
+  incr(); decr();
+      </code></pre>
+      <pre class="fragment" data-fragment-index="1" style="margin: 0;"><code class="language-rust" data-trim>
+  let mut c = 0;
+  let mut incr = || c += 1;
+  let mut decr = !!|| c -= 1!!;   // !!error:!! incr borrows c
+  incr(); decr();
+      </code></pre>
+    </div>
+    <div style="width: 38%; margin-left: 2%;">
+      <svg class="store-fig" viewBox="0 64 440 226" style="--k: 1.1;">
+        <defs>
+          <marker id="ahcl" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/>
+          </marker>
+        </defs>
+        <circle class="lam" cx="70"  cy="138" r="32"/>
+        <circle class="lam" cx="370" cy="138" r="32"/>
+        <text x="70"  y="148">&#955;</text>
+        <text x="370" y="148">&#955;</text>
+        <rect class="ca" x="165" y="108" width="110" height="60"/>
+        <text x="220" y="148">0</text>
+        <path class="arr" d="M104,138 L162,138" marker-end="url(#ahcl)"/>
+        <path class="arr" d="M336,138 L278,138" marker-end="url(#ahcl)"/>
+        <path class="arrnew fragment" data-fragment-index="1" d="M336,138 L278,138" marker-end="url(#ahcl)"/>
+        <text class="nm" x="70"  y="236">incr</text>
+        <text class="nm" x="220" y="236">c</text>
+        <text class="nm" x="370" y="236">decr</text>
+        <path class="arr" d="M70,208 L70,174"   marker-end="url(#ahcl)"/>
+        <path class="arr" d="M220,208 L220,171" marker-end="url(#ahcl)"/>
+        <path class="arr" d="M370,208 L370,174" marker-end="url(#ahcl)"/>
+      </svg>
+    </div>
+  </div>
+  <div style="margin-top: 3%;">
+  <b>No object owns <code>c</code>: only the two closures reach it.</b>
+  </div>
+  <div class="fragment" data-fragment-index="1" style="margin-top: 2%;">
+  <b>Shared XOR mutable rejects <code>decr</code>: a closure borrows <code>c</code> from its creation to its last call.</b>
+  <span class="gloss">Rust's workaround, <code style="font-variant-ligatures: none;">Rc&lt;Cell&lt;i32&gt;&gt;</code>, replaces static lifetime tracking by reference counting.</span>
+  </div>
+</section>
+
+<section data-visibility="uncounted">
+  <h2>Backup: Two Closures in Scope (Reachability Types)</h2>
+  <div style="margin-top: 2%;">
+  <b class="goal">Our goal: the same guarantees in higher-order code, with mutable sharing allowed.</b>
+  </div>
+  <div style="display: flex; align-items: flex-start; margin-top: 3%;">
+    <div style="width: 60%;">
+      <pre style="margin: 0;"><code data-trim>
+  val c    = new Ref(0)         //: Ref[Int]??~{c}??
+  val incr = () => c := !c + 1  //: (Unit -> Unit)??~{c}??
+  val decr = () => c := !c - 1  //: (Unit -> Unit)??~{c}??
+  incr(); decr()                // ok
+  par { incr() } { decr() }     // !!error:!! race on ??c??
+      </code></pre>
+    </div>
+    <div style="width: 38%; margin-left: 2%;">
+      <svg class="store-fig" viewBox="0 64 440 226" style="--k: 1.1;">
+        <defs>
+          <marker id="ahrt" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/>
+          </marker>
+        </defs>
+        <text class="pink" x="70"  y="94">{c}</text>
+        <text class="pink" x="370" y="94">{c}</text>
+        <circle class="lam" cx="70"  cy="138" r="32"/>
+        <circle class="lam" cx="370" cy="138" r="32"/>
+        <text x="70"  y="148">&#955;</text>
+        <text x="370" y="148">&#955;</text>
+        <rect class="ca" x="165" y="108" width="110" height="60"/>
+        <text x="220" y="148">0</text>
+        <path class="arr" d="M104,138 L162,138" marker-end="url(#ahrt)"/>
+        <path class="arr" d="M336,138 L278,138" marker-end="url(#ahrt)"/>
+        <text class="nm" x="70"  y="236">incr</text>
+        <text class="nm" x="220" y="236">c</text>
+        <text class="nm" x="370" y="236">decr</text>
+        <path class="arr" d="M70,208 L70,174"   marker-end="url(#ahrt)"/>
+        <path class="arr" d="M220,208 L220,171" marker-end="url(#ahrt)"/>
+        <path class="arr" d="M370,208 L370,174" marker-end="url(#ahrt)"/>
+      </svg>
+    </div>
+  </div>
+  <div style="margin-top: 3%;">
+  <b>Reachability types track what each term may reach, instead of restricting the heap.</b>
+  <span class="gloss">separation is checked only where a program needs it</span>
+  </div>
+  <div style="margin-top: 2%;">
+  <b>A type's qualifier is that set: both closures carry <code class="hl2">??{c}??</code>.</b>
+  </div>
+</section>

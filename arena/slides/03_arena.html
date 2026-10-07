@@ -243,7 +243,17 @@
   </div>
   <div style="margin-top: 2%;">
   <div style="width: 60%; display: inline-block; vertical-align: top; position: relative;">
-  <pre class="grow"><code data-trim data-line-numbers="1-5|1-7" data-fragment-index="1">
+  <div class="r-stack">
+  <pre class="fragment fade-out" data-fragment-index="1"><code data-trim>
+  val r1 = new Ref(0)           //: Ref[Int]??~{r1}??
+  val out = {
+    val a = new Ref(()) !!scoped!!  //: Ref[Unit]??~{a}??
+    val u = new Ref(42) at a    //: Ref[Int]??~{u}??
+    val w = new Ref(a) at r1    //: Ref[Ref[Unit]??~{a}??]??~{w}??
+    ...
+  }
+  </code></pre>
+  <pre class="fragment" data-fragment-index="1"><code data-trim>
   val r1 = new Ref(0)           //: Ref[Int]??~{r1}??
   val out = {
     val a = new Ref(()) !!scoped!!  //: Ref[Unit]??~{a}??
@@ -252,6 +262,7 @@
     new Ref(!u)                 //: Ref[Int]??~{~*}??   ok
   }   // !!a, u deallocated; w stays in r1's arena!!
   </code></pre>
+  </div>
   <div class="fragment" data-fragment-index="1" style="position: absolute; left: 0; top: calc(100% + .35em); white-space: nowrap;">
   <b style="color: #b03030;"><code class="hl2" style="color: #b03030;">w</code> still reaches the deallocated arena.</b>
   </div>

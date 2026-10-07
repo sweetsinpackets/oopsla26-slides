@@ -119,46 +119,55 @@
 <section>
   <h2>Objects Are Higher-Order</h2>
   <div style="margin-top: 2%;">
-  <b>Functional encoding: the methods become closures over the object's state.</b>
+  <b>Methods become closures over the object's state.</b>
   </div>
   <div style="display: flex; align-items: flex-start; margin-top: 3%;">
-    <div style="width: 60%;" class="r-stack">
+    <div style="width: 62%;" class="r-stack">
       <pre class="fragment fade-out" data-fragment-index="1" style="margin: 0;"><code class="language-rust" data-trim>
-  let mut c = 0;
-  let mut incr = || c += 1;
-  let mut decr = || c -= 1;
-  incr(); decr();
+  fn counter(n: i32) -> (impl FnMut(), impl FnMut()) {
+      let mut c = n;
+      (|| c += 1,
+       || c -= 1)
+  }
+  let (mut incr, mut decr) = counter(0);
       </code></pre>
       <pre class="fragment" data-fragment-index="1" style="margin: 0;"><code class="language-rust" data-trim>
-  let mut c = 0;
-  let mut incr = || c += 1;
-  let mut decr = !!|| c -= 1!!;   // !!error:!! incr borrows c
-  incr(); decr();
+  fn counter(n: i32) -> (impl FnMut(), impl FnMut()) {
+      let mut c = n;
+      (|| c += 1,
+       !!|| c -= 1!!)   // !!error:!! c already borrowed
+  }
+  let (mut incr, mut decr) = counter(0);
       </code></pre>
     </div>
-    <div style="width: 38%; margin-left: 2%;">
-      <svg class="store-fig" viewBox="0 64 440 226" style="--k: 1.1;">
+    <div style="width: 36%; margin-left: 2%;">
+      <svg class="store-fig" viewBox="0 64 440 236" style="--k: 1.1;">
         <defs>
-          <marker id="ahcl" viewBox="0 0 10 10" refX="9" refY="5"
+          <marker id="ahpr2" viewBox="0 0 10 10" refX="9" refY="5"
                   markerWidth="7" markerHeight="7" orient="auto-start-reverse">
             <path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/>
           </marker>
         </defs>
-        <circle class="lam" cx="70"  cy="138" r="32"/>
-        <circle class="lam" cx="370" cy="138" r="32"/>
-        <text x="70"  y="148">&#955;</text>
-        <text x="370" y="148">&#955;</text>
+        <circle class="lam" cx="50"  cy="138" r="32"/>
+        <circle class="lam" cx="390" cy="138" r="32"/>
+        <text x="50"  y="148">&#955;</text>
+        <text x="390" y="148">&#955;</text>
         <rect class="ca" x="165" y="108" width="110" height="60"/>
         <text x="220" y="148">0</text>
-        <path class="arr" d="M104,138 L162,138" marker-end="url(#ahcl)"/>
-        <path class="arr" d="M336,138 L278,138" marker-end="url(#ahcl)"/>
-        <path class="arrnew fragment" data-fragment-index="1" d="M336,138 L278,138" marker-end="url(#ahcl)"/>
-        <text class="nm" x="70"  y="236">incr</text>
+        <path class="arr" d="M84,138 L162,138" marker-end="url(#ahpr2)"/>
+        <path class="arr" d="M356,138 L278,138" marker-end="url(#ahpr2)"/>
+        <text class="loc" x="123" y="124">&amp;mut</text>
+        <text class="loc" x="317" y="124">&amp;mut</text>
         <text class="nm" x="220" y="236">c</text>
-        <text class="nm" x="370" y="236">decr</text>
-        <path class="arr" d="M70,208 L70,174"   marker-end="url(#ahcl)"/>
-        <path class="arr" d="M220,208 L220,171" marker-end="url(#ahcl)"/>
-        <path class="arr" d="M370,208 L370,174" marker-end="url(#ahcl)"/>
+        <path class="arr" d="M220,208 L220,171" marker-end="url(#ahpr2)"/>
+        <text class="nm" x="50"  y="236">incr</text>
+        <text class="nm" x="390" y="236">decr</text>
+        <path class="arr" d="M50,208 L50,174"   marker-end="url(#ahpr2)"/>
+        <path class="arr" d="M390,208 L390,174" marker-end="url(#ahpr2)"/>
+        <g class="fragment" data-fragment-index="1">
+          <path class="arrnew" d="M356,138 L278,138" marker-end="url(#ahpr2)"/>
+          <text class="rednote" x="330" y="282">&#10007; already borrowed</text>
+        </g>
       </svg>
     </div>
   </div>
@@ -166,8 +175,60 @@
   <b>No object owns <code>c</code>: only the two closures reach it.</b>
   </div>
   <div class="fragment" data-fragment-index="1" style="margin-top: 2%;">
-  <b>Shared XOR mutable rejects <code>decr</code>: a closure borrows <code>c</code> from its creation to its last call.</b>
-  <span class="gloss">Rust's workaround, <code style="font-variant-ligatures: none;">Rc&lt;Cell&lt;i32&gt;&gt;</code>, replaces static lifetime tracking by reference counting.</span>
+  <b>Shared XOR mutable rejects <code>decr</code>: a closure borrows <code>c</code> when it is created.</b>
+  </div>
+</section>
+
+<section>
+  <h2>Sharing by Reference Counting</h2>
+  <div style="margin-top: 2%;">
+  <b>Rust's workaround shares the cell through <code style="font-variant-ligatures: none;">Rc&lt;RefCell&lt;i32&gt;&gt;</code>.</b>
+  </div>
+  <div style="display: flex; align-items: flex-start; margin-top: 3%;">
+    <div style="width: 62%;">
+      <pre class="grow" style="margin: 0;"><code class="language-rust" data-trim data-line-numbers="1-8|1-9" data-fragment-index="1">
+  fn counter(n: i32) -> (impl FnMut(), impl FnMut()) {
+      let c = Rc::new(RefCell::new(n));
+      let d = c.clone();
+      (move || *c.borrow_mut() += 1,
+       move || *d.borrow_mut() -= 1)
+  }
+  let (mut incr, mut decr) = counter(0);
+  incr(); decr();   // incr, decr : impl FnMut()
+  !!thread::spawn(incr)!!;   // !!error:!! Rc is not Send
+      </code></pre>
+    </div>
+    <div style="width: 36%; margin-left: 2%;">
+      <svg class="store-fig" viewBox="0 64 440 226" style="--k: 1.1;">
+        <defs>
+          <marker id="ahrc3" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/>
+          </marker>
+        </defs>
+        <circle class="lam" cx="50"  cy="138" r="32"/>
+        <circle class="lam" cx="390" cy="138" r="32"/>
+        <text x="50"  y="148">&#955;</text>
+        <text x="390" y="148">&#955;</text>
+        <rect class="ca" x="165" y="108" width="110" height="60"/>
+        <text x="220" y="148">0</text>
+        <text class="note" x="220" y="98">count: 2</text>
+        <path class="arr" d="M84,138 L162,138" marker-end="url(#ahrc3)"/>
+        <path class="arr" d="M356,138 L278,138" marker-end="url(#ahrc3)"/>
+        <text class="loc" x="123" y="124">c</text>
+        <text class="loc" x="317" y="124">d</text>
+        <text class="nm" x="50"  y="236">incr</text>
+        <text class="nm" x="390" y="236">decr</text>
+        <path class="arr" d="M50,208 L50,174"   marker-end="url(#ahrc3)"/>
+        <path class="arr" d="M390,208 L390,174" marker-end="url(#ahrc3)"/>
+      </svg>
+    </div>
+  </div>
+  <div class="fragment" data-fragment-index="1" style="margin-top: 3%;">
+  <b>Thread-safe, but only because Rc can never leave its thread.</b>
+  </div>
+  <div class="fragment" data-fragment-index="2" style="margin-top: 2%;">
+  <b>We cannot reason about sharing and separation from the types.</b>
   </div>
 </section>
 
@@ -177,48 +238,55 @@
   <b class="goal">Our goal: the same guarantees in higher-order code, with mutable sharing allowed.</b>
   </div>
   <div style="display: flex; align-items: flex-start; margin-top: 3%;">
-    <div style="width: 60%;">
-      <pre style="margin: 0;"><code data-trim>
-  val c    = new Ref(0)         //: Ref[Int]??~{c}??
-  val incr = () => c := !c + 1  //: (Unit -> Unit)??~{c}??
-  val decr = () => c := !c - 1  //: (Unit -> Unit)??~{c}??
-  incr(); decr()                // ok
-  par { incr() } { decr() }     // !!error:!! race on ??c??
+    <div style="width: 62%;">
+      <pre class="grow" style="margin: 0;"><code data-trim data-line-numbers="1-7|1-8" data-fragment-index="1">
+  def counter(n: Int) = {    // T = Unit -> Unit
+    val c = new Ref(n)
+    (() => c := !c + 1, () => c := !c - 1)
+  }
+  val ctr = counter(0)
+  val (incr, decr) = ctr     //: incr, decr : T??~{ctr}??
+  incr(); decr()             // ok
+  par { incr() } { !!decr()!! }  // !!error:!! both reach ??ctr??
       </code></pre>
     </div>
-    <div style="width: 38%; margin-left: 2%;">
-      <svg class="store-fig" viewBox="0 64 440 226" style="--k: 1.1;">
+    <div style="width: 36%; margin-left: 2%;">
+      <svg class="store-fig" viewBox="0 64 440 280" style="--k: 1.1;">
         <defs>
-          <marker id="ahrt" viewBox="0 0 10 10" refX="9" refY="5"
+          <marker id="ahrt4" viewBox="0 0 10 10" refX="9" refY="5"
                   markerWidth="7" markerHeight="7" orient="auto-start-reverse">
             <path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/>
           </marker>
         </defs>
-        <text class="pink" x="70"  y="94">{c}</text>
-        <text class="pink" x="370" y="94">{c}</text>
-        <circle class="lam" cx="70"  cy="138" r="32"/>
-        <circle class="lam" cx="370" cy="138" r="32"/>
-        <text x="70"  y="148">&#955;</text>
-        <text x="370" y="148">&#955;</text>
+        <text class="pink" x="50"  y="94">{ctr}</text>
+        <text class="pink" x="390" y="94">{ctr}</text>
+        <circle class="lam" cx="50"  cy="138" r="32"/>
+        <circle class="lam" cx="390" cy="138" r="32"/>
+        <text x="50"  y="148">&#955;</text>
+        <text x="390" y="148">&#955;</text>
         <rect class="ca" x="165" y="108" width="110" height="60"/>
         <text x="220" y="148">0</text>
-        <path class="arr" d="M104,138 L162,138" marker-end="url(#ahrt)"/>
-        <path class="arr" d="M336,138 L278,138" marker-end="url(#ahrt)"/>
-        <text class="nm" x="70"  y="236">incr</text>
-        <text class="nm" x="220" y="236">c</text>
-        <text class="nm" x="370" y="236">decr</text>
-        <path class="arr" d="M70,208 L70,174"   marker-end="url(#ahrt)"/>
-        <path class="arr" d="M220,208 L220,171" marker-end="url(#ahrt)"/>
-        <path class="arr" d="M370,208 L370,174" marker-end="url(#ahrt)"/>
+        <path class="arr" d="M84,138 L162,138" marker-end="url(#ahrt4)"/>
+        <path class="arr" d="M356,138 L278,138" marker-end="url(#ahrt4)"/>
+        <text class="nm inner dead" x="220" y="236">c</text>
+        <path class="arr dead" d="M220,208 L220,171" marker-end="url(#ahrt4)"/>
+        <text class="nm" x="50"  y="236">incr</text>
+        <text class="nm" x="390" y="236">decr</text>
+        <path class="arr" d="M50,208 L50,174"   marker-end="url(#ahrt4)"/>
+        <path class="arr" d="M390,208 L390,174" marker-end="url(#ahrt4)"/>
+        <g class="fragment" data-fragment-index="1">
+          <path class="arrnew" d="M50,254 C100,316 340,316 390,254"
+                marker-start="url(#ahrt4)" marker-end="url(#ahrt4)"/>
+          <text class="rednote" x="220" y="332">both reach ctr</text>
+        </g>
       </svg>
     </div>
   </div>
   <div style="margin-top: 3%;">
   <b>Reachability types track what each term may reach, instead of restricting the heap.</b>
-  <span class="gloss">separation is checked only where a program needs it</span>
   </div>
   <div style="margin-top: 2%;">
-  <b>A type's qualifier is that set: both closures carry <code class="hl2">??{c}??</code>.</b>
+  <b><code>c</code> is gone, but the types keep the sharing: both closures carry <code class="hl2">??{ctr}??</code>.</b>
   </div>
 </section>
 
